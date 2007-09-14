@@ -1,0 +1,690 @@
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage{utopia}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[margin=0.2cm,paper=a4paper]{geometry}
+\usepackage{graphicx}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage[nottoc]{tocbibind}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage[round]{natbib}
+\usepackage{bibentry}
+\usepackage[bookmarks=true,%
+colorlinks=true,
+urlcolor=red, %
+pdfpagemode=UseOutlines,%
+pdfborder={0 0 1},%
+urlbordercolor={1 0 0},%
+filecolor=black,%
+filebordercolor={1 0 0},%
+pdfdisplaydoctitle=true, %
+]{hyperref}              % For creating hyperlinks in cross references
+
+\hypersetup{ %
+pdfauthor={F. Frascati & F. M. Stefanini}, %
+pdftitle={INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R - Soluzioni degli esercizi di ricapitolazione Capitolo 1}, %
+pdfsubject={Sintesi quantitative di un fenomeno} %
+} %
+
+%\VignetteIndexEntry{Soluzioni degli esercizi di ricapitolazione Capitolo 1}
+%\VignettePackage{ISA}
+%\VignetteDepends{ISA,stats,utils,tools}
+%\VignetteKeyword{univar,distribution,htest}
+
+\title{\textbf{\LARGE INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R}\\[0.3cm] %
+\makebox[\textwidth]{\large \url{http://hpe.pearsoned.it/stefanini}}\\[1cm]
+\centerline{\includegraphics[height=4.26cm,width=3cm]{./Ico/Index}} 
+\vspace{1cm} %
+\large \bf Soluzioni degli esercizi di ricapitolazione Capitolo 1:\\ \lq\lq Sintesi quantitative di un fenomeno\rq\rq\\[2pt] %
+%Facoltà di Economia\\[2pt] % %Università degli Studi di Firenze\\[2pt] % 
+%A.A 2006-2007\\[2pt] % 
+} % 
+\author{F.~Frascati \and F.~M.~Stefanini} %
+
+\date{\today\\[20pt] \includegraphics[height=2.117cm,width=2.787cm]{./Ico/show}} %
+
+\linespread{1.3}
+
+\begin{document}
+
+\SweaveOpts{prefix.string=Figure/Capitolo1/Esercizio,eps=F,echo=F} %
+\setkeys{Gin}{width=0.85\textwidth} %
+
+\maketitle
+
+<<results=hide>>=
+library(ISA)
+@
+ 
+\section*{Esercizio 1.4.1} \addcontentsline{toc}{section}{Esercizio 1.4.1}
+
+\begin{itemize}
+\item[1)]
+<<1-4-1-risposta1>>=
+valoreX3 <- seq(100,104,0.5)
+#valoreX3
+# Calcolo del campo di variazione
+resCampoVar <- unlist(lapply(valoreX3,function(vx){
+        max(c(100,100,vx))-min(c(100,100,vx)) })
+        )    
+#resCampoVar
+tabellaRisultato <- cbind(x1=100,x2=100,x3=valoreX3,Acv=resCampoVar)
+dimevaloreX3 <-length(valoreX3)
+valoreD1 <- unlist(lapply(valoreX3,function(vx){
+           dataset <- c(100,100,vx)
+         difSempliceMed(dataset) })
+        ) 
+tabellaRisultato <- cbind(tabellaRisultato,D1 = valoreD1) 
+#tabellaRisultato                    
+valoreSSM <- unlist(lapply(valoreX3,function(vx){
+           dataset <- c(100,100,vx)
+            sum(abs(dataset-mean(dataset))/3) })
+        ) 
+tabellaRisultato <- cbind(tabellaRisultato,Ssm = valoreSSM)
+#tabellaRisultato           
+valore <- unlist(lapply(valoreX3,function(vx){
+           dataset <- c(100,100,vx)
+           sqrt(var(dataset)*2/3) })
+        ) 
+tabellaRisultato <- cbind(tabellaRisultato,
+                     S = valore,
+                     S2 = valore^2)
+# Risposta primo quesito             
+rownames(tabellaRisultato)<-character(dimevaloreX3)
+tabellaRisultato
+@
+
+\item[2)]
+\begin{figure}[h]
+\centering
+<<1-4-1-risposta2,fig=TRUE>>=
+plot(NA,xlim=c(100,104.5),ylim=c(0,4),type="n",axes=F,xlab="x3",ylab="")
+for(aux in 4:8)lines(valoreX3,tabellaRisultato[,aux],
+         col=aux,lty = aux,lwd=2)
+legend(100,4,legend=dimnames(tabellaRisultato)[[2]][4:8],
+        col=4:8,lty=4:8)
+axis(1,at=valoreX3,xlab="x3")
+axis(2,at=0:4,ylab="")
+box()
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-1-risposta2.pdf}{Statistiche riassuntive}}
+ \label{fig:1-4-1-risposta2}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-1-risposta2}\end{NoHyper} analizza graficamente i
+valori delle statistiche riassuntive calcolate al punto precedente. Essa riporta
+sulle ascisse i valori di $x_{3}$ e sulle ordinate i valori degli indici \verb+Acv+ (ampiezza del campo di variazione),
+\verb+D1+ (differenza semplice media), \verb+Ssm+ (scostamento semplice medio), \verb+S+ (scostamento quadratico medio)
+e \verb+S2+ (varianza nella popolazione):
+
+\begin{itemize}
+\item[] $\texttt{Acv} = A_{cv} = x^{(n)} - x^{(1)}$\\[10pt] 
+\item[] $\texttt{D1} = D1 = \frac{1}{n\, (n - 1)}\, \sum_{i=1}^{n}\, \sum_{j=1}^{n}\, \left| x_i - x_j\right|$\\[10pt]
+\item[] $\texttt{Ssm} = S_{sm} = \frac{1}{n}\, \sum_{i=1}^{n}\, \left| x^{(i)} - \bar{x}\right|$\\[10pt]
+\item[] $\texttt{S} = S = \sqrt{S^2}$\\[10pt]
+\item[] $\texttt{S2} = S^2 = \frac{1}{n}\, \sum_{i=1}^{n}\, \left( x^{(i)} - \bar{x}\right)^2$
+\end{itemize}
+
+\end{itemize}
+
+\section*{Esercizio 1.4.2} \addcontentsline{toc}{section}{Esercizio 1.4.2}
+
+\begin{itemize}
+\item[1)]
+<<1-4-2-risposta1a>>=
+NumeroFoglie <- c(0,1,2,3,4);
+FrequenzaCum <- c(0.152,0.3678,0.4894,0.8116,1.0000);
+FrequenzaRel <- diff(c(0,FrequenzaCum ));
+FrequenzaAss <- round(329*FrequenzaRel,0)
+matrix(c(NumeroFoglie,FrequenzaAss),ncol=2,dimnames=list(character(5),c("Numero foglie","Freq")))
+@
+
+\begin{figure}[h]
+\centering
+<<1-4-2-risposta1,fig=TRUE>>=
+barplot(FrequenzaAss,names.arg=paste(NumeroFoglie),ylim=c(0,120),xlab="Numero foglie",ylab="Freq")
+box()
+title("Diagramma di frequenze assolute")
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-2-risposta1.pdf}{Diagramma di frequenze assolute}}
+ \label{fig:1-4-2-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-2-risposta1}\end{NoHyper} mostra il
+diagramma di frequenze assolute per la variabile \verb+Numero foglie+.
+
+\item[2)]
+<<1-4-2-risposta2>>=
+valoriElementari <- rep(NumeroFoglie,FrequenzaAss)
+Mediana <- quantile(valoriElementari,0.5,type=1)
+Moda <- as.numeric(names(moda(valoriElementari)))
+Media <- mean(valoriElementari)
+matrix(c(Mediana,Moda,Media),nrow=3,dimnames=list(c("Mediana:","Moda:","Media:"),character(1)))
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.3} \addcontentsline{toc}{section}{Esercizio 1.4.3}
+
+\begin{itemize}
+\item[1)]
+<<1-4-3-risposta1>>=
+enne <- 433
+valoriDistintiX <- c(3.86,4.26,4.46,4.96,5.66)
+FrequenzaCum <- c(0.263,0.478,0.751,0.891,1)
+FrequenzaRel <- diff(c(0,FrequenzaCum))
+FrequenzaAss <- round(enne*FrequenzaRel,0)
+matrix(c(valoriDistintiX,FrequenzaRel),ncol=2,dimnames=list(character(5),c("Area fogliare","Freq")))
+@
+
+\item[2)]
+
+<<1-4-3-risposta2a>>=
+valoriElementari <- rep(valoriDistintiX,FrequenzaAss)
+cutset <- c(0,3.36,4.36,4.76,5.96,7.66,10.66)
+cat("Frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/enne
+cat("Densità di frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/(enne*diff(cutset))
+@
+
+\begin{figure}[h]
+\centering
+<<1-4-3-risposta2b,fig=TRUE>>=
+hist(valoriElementari,breaks=cutset,freq=F,right=TRUE,plot=T,main="Istogramma di Area fogliare",xlab="Area fogliare",ylab="Densità di frequenza relativa")
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-3-risposta2b.pdf}{Istogramma}}
+ \label{fig:1-4-3-risposta2b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-3-risposta2b}\end{NoHyper} mostra
+l'istogramma di frequenze relative.
+
+\item[3)]
+<<1-4-3-risposta3>>=
+varpop <- varpopol(valoriElementari)
+coefvar <- coefVariaz(valoriElementari)
+differenzainterquartile <- as.numeric(diff(quantile(valoriElementari,probs =c(0.25,0.75) ,type=1)))
+Ssm <- sum(abs(valoriElementari - mean(valoriElementari))/length(valoriElementari))
+matrix(c(varpop,coefvar*100,differenzainterquartile,Ssm),nrow=4,dimnames=list(c("S2:","CV%:","Differenza interquartile:","Ssm:"),character(1)))
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.4} \addcontentsline{toc}{section}{Esercizio 1.4.4}
+
+\begin{itemize}
+\item[1)]
+<<1-4-4-risposta1>>=
+indicatore <- c(1,1,1,2,2,2)
+valoriElementariX <- c(110,107,107,103,109,112);
+Media <- mean(valoriElementariX)
+Varpop <- varpopol(valoriElementariX)
+matrix(c(Media,Varpop),nrow=2,dimnames=list(c("Media:","S2:"),c("Tea & Caffe")))
+@
+
+\item[2)]
+<<1-4-4-risposta2>>=
+Media1 <- mean(valoriElementariX[indicatore=="1"])
+Varpop1 <- varpopol(valoriElementariX[indicatore=="1"])
+Media2 <- mean(valoriElementariX[indicatore=="2"])
+Varpop2 <- varpopol(valoriElementariX[indicatore=="2"])
+matrix(c(Media1,Varpop1,Media2,Varpop2),nrow=2,dimnames=list(c("Media:","S2:"),c("Tea","Caffe")))
+@
+
+\item[3)]
+
+La media rimane la stessa mentre \verb+S2+ è minore nel \verb+Tea+.
+\end{itemize}
+
+\section*{Esercizio 1.4.5} \addcontentsline{toc}{section}{Esercizio 1.4.5}
+
+\begin{itemize}
+\item[1)]
+<<1-4-5-risposta1>>=
+enne <- 170
+valoriDistintiX <- c("Nulla","Bassa","Media","Alta")
+FrequenzaAss <- c(17,25,30,98)
+matrix(c(4:1,FrequenzaAss),nrow=4,dimnames=list(c("Nulla:","Bassa:","Media:","Alta:"),c("Y","Freq")))
+@
+
+\item[2)]
+<<1-4-5-risposta2>>=
+valoriElementari <- rep(valoriDistintiX,FrequenzaAss)
+variabileY <- factor(valoriElementari)
+levels(variabileY) <- c(4,3,2,1)
+etichetta <- valoriDistintiX[FrequenzaAss==max(FrequenzaAss)]
+#cat("Moda: ",etichetta,"\n")
+mediana <- quantiB(as.numeric(variabileY))
+cat("Mediana = Moda = ",mediana,"\n")
+@
+
+\item[3)]
+<<1-4-5-risposta3>>=
+cat("Quantile 0.15: ",quantiB(as.numeric(variabileY),prob=0.15),"\n")
+cat("Quantile 0.85: ",quantiB(as.numeric(variabileY),prob=0.85),"\n")
+@
+
+\item[4)]
+\begin{figure}[h]
+\centering
+<<1-4-5-risposta4,fig=TRUE>>=
+pie(FrequenzaAss, labels= valoriDistintiX)
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-5-risposta4.pdf}{Diagramma a torta}}
+ \label{fig:1-4-5-risposta4}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-5-risposta4}\end{NoHyper} mostra il
+diagramma a settori circolari.
+\end{itemize}
+
+\section*{Esercizio 1.4.6} \addcontentsline{toc}{section}{Esercizio 1.4.6}
+
+\begin{itemize}
+\item[1)]
+
+Decili:
+
+<<1-4-6-risposta1>>=
+enne <- 134
+valoriDistintiX <- 100:109
+FrequenzaAss <- c(2,7,6,11,25,19,31,17,12,4)
+valoriElementari <- rep(valoriDistintiX,FrequenzaAss)
+quantile(valoriElementari,prob=seq(0.1,0.9,0.1),type=1)
+@
+
+\newpage
+
+\item[2)]
+
+<<1-4-6-risposta2a>>=
+cutset <- c(100,103,106,109)
+cat("Frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/enne
+cat("Densità di frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/(enne*diff(cutset))
+@
+
+\begin{figure}[h]
+\centering
+<<1-4-6-risposta2b,fig=TRUE>>=
+hist(valoriElementari,breaks=cutset,freq=F,right=TRUE,plot=T,main="Istogramma di Y",ylab="Densità di frequenza relativa",xlab="y",xlim=c(100,110),ylim=c(0,0.25))
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-6-risposta2b.pdf}{Istogramma}}
+ \label{fig:1-4-6-risposta2b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-6-risposta2b}\end{NoHyper} mostra
+l'istogramma delle frequenze relative della variabile \verb+Y+.
+
+\newpage
+
+\item[3)]
+Decili ottenuti impiegando l'istogramma:
+
+<<1-4-6-risposta3>>=
+raggrupClassi <- hist(valoriElementari, breaks=cutset,right=TRUE,plot=F)
+frequenzeRelativeDiClasse <- raggrupClassi$counts/length(valoriElementari)
+q1 <- 100 + 0.1*(103-100)/frequenzeRelativeDiClasse[1]
+q2 <- 103 + (0.2-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q3 <- 103 + (0.3-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q4 <- 103 + (0.4-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q5 <- 103 + (0.5-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q6 <- 103 + (0.6-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q7 <- 103 + (0.7-frequenzeRelativeDiClasse[1])*(106-103)/frequenzeRelativeDiClasse[2]
+q8 <- 106 + (0.8-frequenzeRelativeDiClasse[1]-frequenzeRelativeDiClasse[2])*(109-106)/frequenzeRelativeDiClasse[3]
+q9 <- 106 + (0.9-frequenzeRelativeDiClasse[1]-frequenzeRelativeDiClasse[2])*(109-106)/frequenzeRelativeDiClasse[3]
+matrix(c(q1,q2,q3,q4,q5,q6,q7,q8,q9),ncol=9,dimnames=list(character(1),paste(seq(10,90,by=10),"%",sep="")))
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.7} \addcontentsline{toc}{section}{Esercizio 1.4.7}
+
+\begin{itemize}
+\item[1)]
+
+Statistiche riassuntive a cinque numeri:
+
+<<1-4-7-risposta1>>=
+valoriDistintiX <- c(17,19,25,26,32)
+FrequenzaAss <- c(783,792,855,920,646)
+enne <- sum(FrequenzaAss)
+valoriElementari <- rep(valoriDistintiX,FrequenzaAss)
+fiveNumbersSummary(valoriElementari)
+@
+
+\newpage
+
+\item[2)]
+
+<<1-4-7-risposta2a>>=
+cutset <- c(0,18.1,26.7,33.5)
+cat("Frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/enne
+cat("Densità di frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/(enne*diff(cutset))
+@
+
+\begin{figure}[h]
+\centering
+<<1-4-7-risposta2b,fig=TRUE>>=
+raggrupClassi <- hist(valoriElementari,breaks=cutset,right=TRUE,plot=F)
+hist(valoriElementari,breaks=cutset,freq=F,right=TRUE,plot=T,main="Istogramma di Y",xlab="Y",ylab="Densità di frequenza relativa",xlim=c(0,40),ylim=c(0,0.1))
+box()
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-7-risposta2b.pdf}{Istogramma frequenze relative}}
+ \label{fig:1-4-7-risposta2b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-7-risposta2b}\end{NoHyper} rappresenta
+l'istogramma delle fequenze relative con classi di valori.
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<1-4-7-risposta3,fig=TRUE>>=
+barplot(raggrupClassi$density,names.arg=raggrupClassi$mids,ylim=c(0,0.1),ylab="Densità di frequenza relativa",main="Diagramma di frequenze relative")
+box()
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-7-risposta3.pdf}{Diagramma di frequenze relative}}
+ \label{fig:1-4-7-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-7-risposta3}\end{NoHyper} rappresenta
+il diagramma di frequenze relative impiegando il valore centrale di classe.
+\end{itemize}
+
+\section*{Esercizio 1.4.8} \addcontentsline{toc}{section}{Esercizio 1.4.8}
+
+\begin{itemize}
+\item[1)]
+<<1-4-8-risposta1>>=
+brembana <- c(57,141,191)
+seriana <- c(56,189,255)
+torta <- c(81,222,308)
+FrequenzeAssolute <- list()
+FrequenzeAssolute[[1]] <- diff(c(0,brembana))
+FrequenzeAssolute[[2]] <- diff(c(0,seriana))
+FrequenzeAssolute[[3]] <- diff(c(0,torta))
+frequenzeCongiunte <- matrix(c(
+FrequenzeAssolute[[1]],
+FrequenzeAssolute[[2]],
+FrequenzeAssolute[[3]]) 
+,3,3,byrow=T,
+dimnames = list(c("X = 0","X = 1","X = 2"),c("Y = 1","Y = 2","Y = 3"))
+)
+frequenzeCongiunte 
+@
+
+\newpage
+
+\item[2)]
+<<1-4-8-risposta2>>=
+enne <- sum(frequenzeCongiunte)
+marginaleY <- apply(frequenzeCongiunte,2,sum)
+matrix(c(1:3,marginaleY/enne),nrow=3,dimnames=list(character(3),c("Y","Freq")))
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<1-4-8-risposta3,fig=TRUE>>=
+valoriElementari <- rep(c(1,2,3),marginaleY);
+plot(ecdf(valoriElementari),main="Funzione di distribuzione empirica di Y",xlab="y",ylab="Fn(y)")
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-8-risposta3.pdf}{Funzione di distribuzione empirica}}
+ \label{fig:1-4-8-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-8-risposta3}\end{NoHyper} rappresenta
+la funzione di distribuzione empirica di \verb+Y+.
+\end{itemize}
+
+\section*{Esercizio 1.4.9} \addcontentsline{toc}{section}{Esercizio 1.4.9}
+
+\begin{itemize}
+\item[1)]
+<<1-4-9-risposta1>>=
+valoriElementari <- c(235.4,236,239.4,236,235,231.8,235,235,235.4,235,232,235.4,235,239.2,236,235.4,231.7)
+svaloriElementari <- sort(valoriElementari)
+matrix(c(unique(svaloriElementari),as.vector(table(svaloriElementari))),nrow=8,dimnames=list(character(8),c("X","Freq")))
+@
+
+\item[2)]
+<<1-4-9-risposta2>>=
+cat("Quantile 0.705: ",quantiB(valoriElementari, 0.705),"\n")
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<1-4-9-risposta3,fig=TRUE>>=
+boxPstd(valoriElementari)
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-9-risposta3.pdf}{Boxplot}}
+ \label{fig:1-4-9-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-9-risposta3}\end{NoHyper} rappresenta
+il Boxplot della variabile \verb+X+.
+\end{itemize}
+
+\section*{Esercizio 1.4.10} \addcontentsline{toc}{section}{Esercizio 1.4.10}
+
+\begin{itemize}
+<<>>=
+data(esercizio.1.4.10)
+DFlavoro <- esercizio.1.4.10
+@
+
+\item[1)]
+\begin{figure}[h]
+\centering
+<<1-4-10-risposta1,fig=TRUE>>=
+par(mfrow=c(2,1))
+boxPstd(DFlavoro$Raccolto[DFlavoro$Varieta=="1"])
+title(paste("Boxplot varieta\' ",1))
+boxPstd(DFlavoro$Raccolto[DFlavoro$Varieta=="2"])
+title(paste("Boxplot varieta\' ",2))
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-10-risposta1.pdf}{Boxplot condizionato}}
+ \label{fig:1-4-10-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-10-risposta1}\end{NoHyper} rappresenta
+il Boxplot della variabile \verb+Raccolto+ condizionato a \verb+Varieta+.
+
+\item[2)]
+<<1-4-10-risposta2>>=
+matrix(100*as.vector(tapply(DFlavoro$Commestibile,DFlavoro$Varieta,coefVariaz)),nrow=2,dimnames=list(c("v1:","v2:"),"CV%"))
+@
+
+\item[3)]
+<<1-4-10-risposta3>>=
+dime <- nrow(DFlavoro)
+varianza <- var(DFlavoro$Raccolto,DFlavoro$Commestibile)*(dime-1)/dime
+correlazione <- cor(DFlavoro$Raccolto,DFlavoro$Commestibile)
+cat("Covarianza: ",varianza,"\n")
+cat("Indice r di correlazione lineare: ",correlazione,"\n")
+@
+
+\newpage
+
+\item[4)]
+Distribuzione di frequenza assoluta in classi per la variabile \verb+Raccolto+:
+
+<<1-4-10-risposta4>>=
+cutset <- c(33,34,36,40,50)
+table(cut(DFlavoro$Raccolto,breaks=cutset,include.lowest=T))
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.11} \addcontentsline{toc}{section}{Esercizio 1.4.11}
+
+\begin{itemize}
+\item[1)]
+<<1-4-11-risposta1>>=
+valoriElementari <- c(189,176,176,191,189,191,176,176,191,176) 
+media <- mean(valoriElementari)
+cat("Media (grammi): ",media,"\n")
+cat("Media (Kg): ",media/1000,"\n")
+@
+
+\item[2)]
+<<1-4-11-risposta2>>=
+diffsemplice <- difSempliceMed(valoriElementari)
+cat("D1: ",diffsemplice,"\n")
+@
+
+\item[3)]
+<<1-4-11-risposta3>>=
+Mediana <- quantile(valoriElementari,prob=0.5,type=1)
+cat("Mediana: ",Mediana,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.12} \addcontentsline{toc}{section}{Esercizio 1.4.12}
+
+\begin{itemize}
+\item[1)]
+<<1-4-12-risposta1>>=
+valoriDistinti <- c(9.9,10.0,10.1,10.2)
+FrequenzeCum <- c(0.13,0.57,0.63,1.0)
+enne <- 786
+FrequenzeAss <- round(enne*diff(c(0,0.13,0.57,0.63,1.0)),0)
+valoriElementari <- rep(valoriDistinti,FrequenzeAss)
+cat("Moda: ",as.numeric(names(moda(valoriElementari))),"\n")
+@
+
+\item[2)]
+<<1-4-12-risposta2>>=
+cat("Quantile 0.57: ",quantiB(valoriElementari,0.57),"\n")
+cat("Quantile 0.25: ",quantiB(valoriElementari,0.25),"\n")
+cat("Quantile 0.77: ",quantiB(valoriElementari,0.77),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 1.4.13} \addcontentsline{toc}{section}{Esercizio 1.4.13}
+
+\begin{itemize}
+\item[1)]
+<<1-4-13-risposta1>>=
+valoriDistinti <- c(171,192,251,269,327)
+FrequenzeAss <- c(513,524,552,560,524)
+enne <- 2673
+valoriElementari <- rep(valoriDistinti,FrequenzeAss)
+cat("Differenza interquartile: ",diff(quantile(valoriElementari,prob=c(0.25,0.75),type=1)),"\n")
+cat("Differenza interdecile: ",diff(quantile(valoriElementari,prob=c(0.1,0.9),type=1)),"\n")
+@
+
+\item[2)]
+
+<<1-4-13-risposta2a>>=
+cutset <- c(0,193,271,350)
+cat("Frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/enne
+@
+
+\newpage
+
+<<1-4-13-risposta2b>>=
+cat("Densità di frequenza relativa per classe:\n")
+table(cut(valoriElementari,cutset,include.lowest=T))/(enne*diff(cutset))
+@
+
+\begin{figure}[h]
+\centering
+<<1-4-13-risposta2c,fig=TRUE>>=
+hist(valoriElementari,breaks=cutset,prob=T,plot=T,main="Istogramma di Y",ylab="Densità di  frequenza relativa",xlab="y",ylim=c(0,0.01),xlim=c(0,400))
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-13-risposta2c.pdf}{Istogramma}}
+ \label{fig:1-4-13-risposta2c}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-13-risposta2c}\end{NoHyper} rappresenta
+l'istogramma di frequenze relative.
+\end{itemize}
+
+\section*{Esercizio 1.4.14} \addcontentsline{toc}{section}{Esercizio 1.4.14}
+
+\begin{itemize}
+<<>>=
+data(esercizio.1.4.14)
+DFlavoro <- esercizio.1.4.14
+@
+
+\item[1)]
+<<1-4-14-risposta1>>=
+ftable(DFlavoro,row.vars=c("Lunghezza","Diametro"),col.vars="Peso")
+ftable(DFlavoro,row.vars=c("Peso","Lunghezza"),col.vars="Diametro")
+ftable(DFlavoro,row.vars=c("Diametro","Lunghezza"),col.vars="Peso")
+@
+
+\item[2)]
+<<1-4-14-risposta2>>=
+table(DFlavoro[,c("Diametro","Peso")])
+enne <- 15
+cat("chiquadro: ",summary(table(DFlavoro[,c("Diametro","Peso")]))$statistic/(enne*2),"\n")
+cat("gradi di libertà: ",(3-1)*(3-1),"\n")
+@
+
+\item[3)]
+<<1-4-14-risposta3>>=
+table(DFlavoro[,c("Lunghezza","Peso")])
+cat("Indice r di correlazione lineare: ",cor(DFlavoro[,"Lunghezza"],DFlavoro[,"Peso"]),"\n")
+@
+
+\item[4)]
+
+Distribuzione marginale frequenze relative per la variabile \verb+Diametro+:
+
+<<1-4-14-risposta4>>=
+table(DFlavoro[,c("Diametro")])/15
+@
+
+\item[5)]
+
+Distribuzione delle frequenze relative di \verb+Diametro+ condizionate a \verb+Peso+:
+
+<<1-4-14-risposta5>>=
+table(DFlavoro[,c("Diametro","Peso")])/cbind(c(6,6,6),c(6,6,6),c(3,3,3))
+@
+
+\item[6)]
+\begin{figure}[h]
+\centering
+<<1-4-14-risposta6,fig=TRUE>>=
+stars(DFlavoro[1:4,])
+@
+ \caption{\href{file:Figure/Capitolo1/Esercizio-1-4-14-risposta6.pdf}{Diagramma a stella}}
+ \label{fig:1-4-14-risposta6}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:1-4-14-risposta6}\end{NoHyper} rappresenta
+il diagramma a stella delle prime $4$ unità statistiche.
+\end{itemize}
+
+\section*{Esercizio 1.4.15} \addcontentsline{toc}{section}{Esercizio 1.4.15}
+
+\begin{itemize}
+\item[1)]
+<<1-4-15-risposta1>>=
+valoriElementari <- c(76,87.4,48.5,52.9,25.9)
+cat("D1: ",difSempliceMed(valoriElementari),"\n")
+@
+
+\item[2)]
+<<1-4-15-risposta2>>=
+massimo <- max(valoriElementari)
+campovariaz <- max(valoriElementari)-min(valoriElementari)
+coefficientevariaz <- coefVariaz(valoriElementari)
+matrix(c(massimo,campovariaz,coefficientevariaz*100),nrow=3,dimnames=list(c("Massimo:","Acv:","CV%:"),character(1)))
+@
+\end{itemize}
+
+\end{document}
+

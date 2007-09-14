@@ -1,0 +1,431 @@
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage{utopia}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[margin=0.2cm,paper=a4paper]{geometry}
+\usepackage{graphicx}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage[nottoc]{tocbibind}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage[round]{natbib}
+\usepackage{bibentry}
+\usepackage[bookmarks=true,%
+colorlinks=true,
+urlcolor=red, %
+pdfpagemode=UseOutlines,%
+pdfborder={0 0 1},%
+urlbordercolor={1 0 0},%
+filecolor=black,%
+filebordercolor={1 0 0},%
+pdfdisplaydoctitle=true, %
+]{hyperref}              % For creating hyperlinks in cross references
+
+\hypersetup{ %
+pdfauthor={F. Frascati & F. M. Stefanini}, %
+pdftitle={INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R - Soluzioni degli esercizi di ricapitolazione Capitolo 3}, %
+pdfsubject={Inferenza} %
+} %
+
+%\VignetteIndexEntry{Soluzioni degli esercizi di ricapitolazione Capitolo 3}
+%\VignettePackage{ISA}
+%\VignetteDepends{ISA,stats,utils,tools}
+%\VignetteKeyword{univar,distribution,htest}
+
+\title{\textbf{\LARGE INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R}\\[0.3cm] %
+\makebox[\textwidth]{\large \url{http://hpe.pearsoned.it/stefanini}}\\[1cm]
+\centerline{\includegraphics[height=4.26cm,width=3cm]{./Ico/Index}}
+\vspace{1cm} %
+\large \bf Soluzioni degli esercizi di ricapitolazione Capitolo 3:\\ \lq\lq Inferenza\rq\rq\\[2pt] %
+%Facoltà di Economia\\[2pt] %
+%Università degli Studi di Firenze\\[2pt] %
+%A.A 2006-2007\\[2pt] %
+}
+\author{F.~Frascati \and F.~M.~Stefanini} %
+
+\date{\today\\[20pt] \includegraphics[height=2.117cm,width=2.787cm]{./Ico/show}} %
+
+\linespread{1.3}
+
+\begin{document}
+
+\SweaveOpts{prefix.string=figure/Capitolo3/Esercizio,eps=F,echo=F} %
+\setkeys{Gin}{width=0.75\textwidth} %
+
+\maketitle
+
+<<results=hide>>=
+library(ISA)
+@
+ 
+\section*{Esercizio 3.4.1} \addcontentsline{toc}{section}{Esercizio 3.4.1}
+
+\begin{itemize}
+\item[1)]
+<<3-4-1-risposta1>>=
+X <- list(val=1:3,prob=c(0.5,0.25,0.25))
+cat("X: ",X$val,"\n")
+@
+
+\item[2)]
+<<3-4-1-risposta2>>=
+matrix(c(X$val,X$prob),nrow=3,dimnames=list(character(3),c("X","P(X=x)")))
+@
+
+\item[3)]
+<<3-4-1-risposta3>>=
+prob <- c(0.5,0.25,0.25)
+distrdoppia <- outer(prob,prob,"*")
+dimnames(distrdoppia) <- list(c("Y1=1","Y1=2","Y1=3"),c("Y2=1","Y2=2","Y2=3"))
+distrdoppia
+@
+
+\item[4)]
+<<3-4-1-risposta4>>=
+X <- list(val=2:6,prob=c(0.25,0.125+0.125,0.125+0.0625+0.125,0.0625+0.0625,0.0625))
+matrix(c(X$val,X$prob),nrow=5,dimnames=list(character(5),c("X","P(X=x)")))
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.2} \addcontentsline{toc}{section}{Esercizio 3.4.2}
+
+\begin{itemize}
+\item[1)]
+<<3-4-2-risposta1>>=
+Y <- list(val=2*1:6,prob=c(0.5*0.5,0.5*0.5,0.5*0.5*0.5*0.5,3*0.5*0.5*0.5*0.5,3*0.5*0.5*0.5*0.5,0.5*0.5*0.5*0.5))
+matrix(c(Y$val,Y$prob),nrow=6,dimnames=list(character(6),c("Y","P(Y=y)")))
+@
+
+\item[2)]
+<<3-4-2-risposta2>>=
+Z <- list(val=2*1:2,prob=c(0.5*0.5+0.5*0.5*0.5*0.5,1-(0.5*0.5+0.5*0.5*0.5*0.5)))
+matrix(c(Z$val,Z$prob),nrow=2,dimnames=list(character(2),c("Z","P(Z=z)")))
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.3} \addcontentsline{toc}{section}{Esercizio 3.4.3}
+
+\begin{itemize}
+\item[1)]
+<<3-4-3-risposta1>>=
+miamatrice <- as.matrix(cbind(expand.grid(X1=c(1,3),X2=c(1,3),X3=c(1,3)),rep(1,8)/8))
+dimnames(miamatrice)<-list(character(8),c("X1","X2","X3","P(X1=x1,X2=x2,X3=x3)"))
+miamatrice
+@
+
+\item[2)]
+<<3-4-3-risposta2>>=
+Y <- list(val=c(3,5,7,9),prob=c(0.5*0.5*0.5,3*0.5*0.5*0.5,3*0.5*0.5*0.5,0.5*0.5*0.5))
+matrix(c(Y$val,Y$prob),nrow=4,dimnames=list(character(4),c("Y","P(Y=y)")))
+@
+\end{itemize}
+
+<<results=hide>>=
+repliche <- 10000
+enne <- 5
+minimo <- 98
+massimo <- 112
+matrice <- matrix(data=runif(n=repliche*enne,min=minimo,max=massimo),nrow=repliche,ncol=enne)
+res <- apply(matrice,MARGIN=1,FUN=IQR)
+@
+
+\section*{Esercizio 3.4.4} \addcontentsline{toc}{section}{Esercizio 3.4.4}
+
+Attenzione: simulazione con dati non prefissati! Ogni run è diverso dai precedenti.
+
+\begin{itemize}
+\item[1)]
+<<3-4-4-risposta1>>=
+cat("matrice <- matrix(data=runif(n=10000*5,min=98,max=112),nrow=10000,ncol=5)\n")
+cat("matrice\n")
+@
+
+\item[2)]
+
+Riassunto descrittivo:
+
+<<3-4-4-risposta2a>>=
+cat("res <- apply(matrice,MARGIN=1,FUN=IQR)\n")
+cat("fiveNumbersSummary(res)\n")
+@
+
+\begin{figure}[h]
+\centering
+<<3-4-4-risposta2b,fig=TRUE>>=
+hist(res,prob=T,main="Istogramma distribuzione campionaria IQR",ylab="frequenza relativa",xlab="IQR")
+@
+ \caption{\href{file:Figure/Capitolo3/Esercizio-3-4-4-risposta2b.pdf}{Istogramma campionario}}
+ \label{fig:3-4-4-risposta2b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:3-4-4-risposta2b}\end{NoHyper} rappresenta l'istogramma di frequenze relative
+per la statistica campionaria differenza interquartile \verb+IQR()+.
+
+\item[3)]
+<<3-4-4-risposta3>>=
+cat("Modello di popolazione: 1-punif(q=110,min=98,max=112)\n")
+cat("Stima: sum(as.vector(matrice)>110)/(10000*5)\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.5} \addcontentsline{toc}{section}{Esercizio 3.4.5}
+
+\begin{itemize}
+\item[1)]
+<<3-4-5-risposta1>>=
+alpha <- 0.1
+enne <- 19
+S2n <- 0.0031
+l1 <- enne*S2n/qchisq(1-alpha/2,df=enne)
+l2 <- enne*S2n/qchisq(alpha/2,df=enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+
+\item[2)]
+<<3-4-5-risposta2>>=
+cat("Incertezza: ",l2-l1,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.6} \addcontentsline{toc}{section}{Esercizio 3.4.6}
+
+\begin{itemize}
+\item[1)]
+<<3-4-6-risposta1>>=
+n1 <- 31
+n2 <- 48
+media1 <- 37.57
+media2 <- 37.71
+var1 <- var2 <- 0.16
+alpha <- 0.12
+zcrit <- qnorm(1-alpha/2)
+l1 <- media1-media2 - zcrit*sqrt(var1/n1+var2/n2)
+l2 <- media1-media2 + zcrit*sqrt(var1/n1+var2/n2)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+
+\item[2)]
+<<3-4-6-risposta2>>=
+cat("Incertezza: ",l2-l1,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.7} \addcontentsline{toc}{section}{Esercizio 3.4.7}
+
+\begin{itemize}
+\item[1)]
+<<3-4-7-risposta1>>=
+nsucc <- 71
+enne <- 213
+phat <- nsucc/enne
+cat("phat: ",phat,"\n")
+@
+
+\item[2)]
+<<3-4-7-risposta2>>=
+alpha <- 0.01
+zcrit <- qnorm(1-alpha/2)
+l1 <- phat-zcrit*sqrt(phat*(1-phat)/enne)
+l2 <- phat+zcrit*sqrt(phat*(1-phat)/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.8} \addcontentsline{toc}{section}{Esercizio 3.4.8}
+
+\begin{itemize}
+\item[1)]
+<<3-4-8-risposta1>>=
+enne <- 28
+noncommestibili <- enne-11
+phat <- noncommestibili/enne
+cat("phat: ",phat,"\n")
+@
+
+\item[2)]
+<<3-4-8-risposta2>>=
+alpha <- 0.05
+zcrit <- qnorm(1-alpha/2)
+l1 <- phat-zcrit*sqrt(phat*(1-phat)/enne)
+l2 <- phat+zcrit*sqrt(phat*(1-phat)/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.9} \addcontentsline{toc}{section}{Esercizio 3.4.9}
+
+\begin{itemize}
+\item[1)]
+<<3-4-9-risposta1>>=
+data(esercizio.1.4.10)
+Raccolto <- esercizio.1.4.10[,"Raccolto"]
+Varieta <- esercizio.1.4.10[,"Varieta"]
+meanONLYv2 <- mean(Raccolto[Varieta=="2"])
+cat("Media: ",meanONLYv2,"\n")
+varONLYv2 <- var(Raccolto[Varieta=="2"])
+cat("Varianza: ",varONLYv2,"\n")
+@
+
+\item[2)]
+<<3-4-9-risposta2>>=
+sigma2 <- 3.5**2
+incertezza <- 1
+alpha <- 0.07 
+zcrit <- qnorm(1-alpha/2)
+enne <- ceiling(sigma2*(2*zcrit/incertezza)**2)
+cat("n: ",enne,"\n")
+@
+
+\item[3)]
+
+Stimare la varianza incognita ed assumere l'ipotesi di normalità in presenza di un campione sufficientemente ampio.
+\end{itemize}
+
+\section*{Esercizio 3.4.10} \addcontentsline{toc}{section}{Esercizio 3.4.10}
+
+\begin{itemize}
+\item[1)]
+<<3-4-10-risposta1>>=
+capacita <- 0.75
+enne <- 111
+nonAdatteVendita <- 37
+phat <- nonAdatteVendita/enne
+cat("phat: ",phat,"\n")
+@
+
+\item[2)]
+<<3-4-10-risposta2>>=
+alpha <- 0.02
+zcrit <- qnorm(1-alpha/2)
+l1 <- phat-zcrit*sqrt(phat*(1-phat)/enne)
+l2 <- phat+zcrit*sqrt(phat*(1-phat)/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.11} \addcontentsline{toc}{section}{Esercizio 3.4.11}
+
+\begin{itemize}
+\item[1)]
+<<3-4-11-risposta1>>=
+enne <- 129
+distribuzione <- matrix(c(8,5,38,26,31,21),ncol=2,nrow=3,byrow=T)
+X <- list(val=0:1,freq=c(8+38+31,5+26+21))
+matrix(c(X$val,X$freq),nrow=2,dimnames=list(character(2),c("X","Freq")))
+Y <- list(val=0:2,freq=c(8+5,38+26,31+21))
+matrix(c(Y$val,Y$freq),nrow=3,dimnames=list(character(3),c("Y","Freq")))
+@
+
+\item[2)]
+<<3-4-11-risposta2>>=
+abeteOfaggio <- sum(distribuzione[2:3,])
+phat <- abeteOfaggio/enne
+alpha <- 0.05
+zcrit <- qnorm(1-alpha/2)
+l1 <- phat-zcrit*sqrt(phat*(1-phat)/enne)
+l2 <- phat+zcrit*sqrt(phat*(1-phat)/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.12} \addcontentsline{toc}{section}{Esercizio 3.4.12}
+
+\begin{itemize}
+\item[1)]
+Si distribuisce normalmente con media uguale a quella della popolazione e varianza
+uguale a quella della popolazione divisa per \verb+n = 5+.
+
+\item[2)]
+<<3-4-12-risposta2>>=
+varianza <- 25
+enne <- 5
+media <- 2000
+alpha <- 0.08
+zcrit <- qnorm(1-alpha/2)
+l1 <- media-zcrit*sqrt(varianza/enne)
+l2 <- media+zcrit*sqrt(varianza/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.13} \addcontentsline{toc}{section}{Esercizio 3.4.13}
+
+\begin{itemize}
+\item[1)]
+<<3-4-13-risposta1>>=
+enne <- 25
+difettate <- 6
+livello <- 0.87
+phat <- difettate/enne
+alpha <- 1-livello
+zcrit <- qnorm(1-alpha/2)
+l1 <- phat-zcrit*sqrt(phat*(1-phat)/enne)
+l2 <- phat+zcrit*sqrt(phat*(1-phat)/enne)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+
+\item[2)]
+Vale l'approssimazione asintotica normale basata sul TCL.
+\end{itemize}
+
+\section*{Esercizio 3.4.14} \addcontentsline{toc}{section}{Esercizio 3.4.14}
+
+\begin{itemize}
+\item[1)]
+<<3-4-14-risposta1>>=
+enne <- 25
+sommaY <- 2205
+S2n <- 14.7
+mediaY <- sommaY/enne
+stimavar <- S2n*(enne)/(enne-1)
+cat("varianza: ",stimavar,"\n")
+@
+
+\item[2)]
+<<3-4-14-risposta2>>=
+alpha <- 0.05
+l1 <- (enne-1)*stimavar/qchisq(1-alpha/2,df=enne-1)
+l2 <- (enne-1)*stimavar/qchisq(alpha/2,df=enne-1)
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+
+\item[3)]
+<<3-4-14-risposta3>>=
+prob <- 1-pnorm(90,mean=mediaY,sd=sqrt(stimavar))
+cat("probabilità: ",prob,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 3.4.15} \addcontentsline{toc}{section}{Esercizio 3.4.15}
+
+\begin{itemize}
+\item[1)]
+Attenzione, i dati cambiano ad ogni simulazione!
+
+<<3-4-15-risposta1>>=
+cat("matrice<-matrix(data=rnorm(n=10000*5,mean=105,sd=6),nrow=10000,ncol=5)\n")
+cat("matrice\n")
+@
+
+\item[2)]
+<<3-4-15-risposta2>>=
+cat("resS1 <- apply(matrice,MARGIN=1,FUN=min)")
+cat("resS2 <- apply(matrice,MARGIN=1,FUN=mean)")
+cat("mean(resS1)")
+cat("var(resS1)")
+cat("mean(resS2)")
+cat("var(resS1)")
+@
+
+\item[3)]
+La media di \verb+S2+ si avvicina molto di più al valore 105 (teorico) di quella di \verb+S1+. La varianza
+di \verb+S2+ è molto più bassa di quella di \verb+S1+.\\
+Sulla variabile media campionaria è basato il TCL.
+\end{itemize}
+
+\end{document}
+

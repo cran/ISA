@@ -1,0 +1,61 @@
+citHeader("Bibliografia")
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[1] A. Camussi, F. Moller, E. Ottaviano, M. Sari Gorla,", 
+               "Metodi statistici per la sperimentazione biologica.",
+               "Zanichelli, 1995.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[2] R. Carroll, D. Ruppert,", 
+               "Transformation and weighting in regression.",
+               "Chapman Hall, 1988.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[3] N. R. Draper, H. Smith,", 
+               "Applied regression analysis.",
+               "Wiley, 2003.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[4] M. Kendall, A. Stuart, J. K. Ord, S. Arnold (editori),", 
+               "Kendall's advanced theory of statistics, Volume 1: Distribution Theory, 6th edn.",
+               "Hodder Arnold Publication, New York, NY, USA, 1994.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[5] M. Kendall, A. Stuart, J. K. Ord, S. Arnold (editori),", 
+               "Kendall's advanced theory of statistics, Volume 2A: Classical Inference and the Linear Model.",
+               "Hodder Arnold Publication, New York, NY, USA, 1999.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[6] M. Kutner, C. Nachtschein, W. Wasserman, J. Neter,", 
+               "Applied Linear statistical models.",
+               "McGraw-Hill, 1996.")
+)
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[7] M. J. Lombardi, F. M. Stefanini,", 
+               "Il laboratorio virtuale di probabilità e statistica.",
+               "Technical report,",
+               "Firenze University Press, 2001.",
+               "http://www.ds.unifi.it/VL/")
+)
+
+citEntry(entry   = "Manual",textVersion = 
+         paste("[8] R Development Core Team,", 
+               "R: A Language and Environment for Statistical Computing.",
+               "R Foundation for Statistical Computing, Vienna, Austria, 2006.",
+               "ISBN 3-900051-07-0.")
+         )
+
+citEntry(entry   = "Book",textVersion = 
+         paste("[9] W. N. Venables, B. D. Ripley,", 
+               "Modern Applied Statistics in S-Plus.",
+               "Springer, 2003.")
+)
+
+
+

@@ -1,0 +1,370 @@
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage{utopia}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[margin=0.2cm,paper=a4paper]{geometry}
+\usepackage{graphicx}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage[nottoc]{tocbibind}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage[round]{natbib}
+\usepackage{bibentry}
+\usepackage[bookmarks=true,%
+colorlinks=true,
+urlcolor=red, %
+pdfpagemode=UseOutlines,%
+pdfborder={0 0 1},%
+urlbordercolor={1 0 0},%
+filecolor=black,%
+filebordercolor={1 0 0},%
+pdfdisplaydoctitle=true, %
+]{hyperref}              % For creating hyperlinks in cross references
+
+\hypersetup{ %
+pdfauthor={F. Frascati & F. M. Stefanini}, %
+pdftitle={INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R - Soluzioni degli esercizi di ricapitolazione Capitolo 2}, %
+pdfsubject={La probabilità} %
+} %
+
+%\VignetteIndexEntry{Soluzioni degli esercizi di ricapitolazione Capitolo 2}
+%\VignettePackage{ISA}
+%\VignetteDepends{ISA,stats,utils,tools}
+%\VignetteKeyword{univar,distribution,htest}
+
+\title{\textbf{\LARGE INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R}\\[0.3cm] %
+\makebox[\textwidth]{\large \url{http://hpe.pearsoned.it/stefanini}}\\[1cm]
+\centerline{\includegraphics[height=4.26cm,width=3cm]{./Ico/Index}}
+\vspace{1cm} %
+\large \bf Soluzioni degli esercizi di ricapitolazione Capitolo 2:\\ \lq\lq La probabilità\rq\rq\\[2pt] %
+%Facoltà di Economia\\[2pt] %
+%Università degli Studi di Firenze\\[2pt] %
+%A.A 2006-2007\\[2pt] %
+}
+\author{F.~Frascati \and F.~M.~Stefanini} %
+
+\date{\today\\[20pt] \includegraphics[height=2.117cm,width=2.787cm]{./Ico/show}} %
+
+\linespread{1.3}
+
+\begin{document}
+
+\SweaveOpts{prefix.string=figure/Capitolo2/Esercizio,eps=F,echo=F} %
+\setkeys{Gin}{width=0.75\textwidth} %
+
+\maketitle
+
+<<results=hide>>=
+library(ISA)
+@
+ 
+\section*{Esercizio 2.5.1} \addcontentsline{toc}{section}{Esercizio 2.5.1}
+
+\begin{itemize}
+\item[1)]
+<<2-5-1-risposta1>>=
+cat("Moda: ",1.59,"\n")
+@
+
+\item[2)]
+<<2-5-1-risposta2>>=
+zeta <- qnorm(1-0.289,0,1)
+sigma <- (1.82-1.59)/zeta
+cat("Varianza: ",sigma**2,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.2} \addcontentsline{toc}{section}{Esercizio 2.5.2}
+
+\begin{itemize}
+\item[1)]
+<<2-5-2-risposta1>>=
+Y1X1 <- 0.91 * 0.016
+cat(Y1X1,"\n")
+Y1X0 <- 0.155 * (1 - 0.016)
+@
+
+\item[2)]
+<<2-5-2-risposta2>>=
+posteriori <- Y1X1/(Y1X1+Y1X0)
+cat(posteriori,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.3} \addcontentsline{toc}{section}{Esercizio 2.5.3}
+
+\begin{itemize}
+\item[1)]
+<<2-5-3-risposta1>>=
+proba <- 0.16 + 0.27
+cat(proba,"\n")
+@
+
+\item[2)]
+<<2-5-3-risposta2>>=
+cat(1-proba,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.4} \addcontentsline{toc}{section}{Esercizio 2.5.4}
+
+\begin{itemize}
+\item[1)]
+<<2-5-4-risposta1>>=
+probaUno <-  1 - 0.307 - 0.693 
+cat(round(probaUno,0),"\n")
+@
+
+\item[2)]
+<<2-5-4-risposta2>>=
+probaDue <- 1 - 0.307 - 0.693 -0
+cat(round(probaDue,0),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.5} \addcontentsline{toc}{section}{Esercizio 2.5.5}
+
+Esercizio 2.5.5: Si veda l'errata corrige al sito web del testo per la corretta interpretazione dell'esercizio.
+
+\begin{itemize}
+\item[1)]
+\begin{figure}[h]
+\centering
+\includegraphics{figure/Capitolo2/Esercizio-2-5-5-risposta1}
+ \caption{\href{file:Figure/Capitolo2/Esercizio-2-5-5-risposta1.pdf}{Albero combinatorico}}
+ \label{fig:Esercizio-5-5-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:Esercizio-5-5-risposta1}\end{NoHyper} mostra l'albero combinatorico
+per il motivo di guasto di una macchina agricola.
+
+\newpage
+
+\item[2)]
+<<2-5-5-risposta2>>=
+C1 <- rep(c(0,1),c(4,4))
+C2 <- rep(c(0,1,0,1),c(2,2,2,2))
+C3 <- rep(c(0,1),4)
+spazioCam <- cbind(C1,C2,C3)
+valPi <- 0.3
+Pbot1 <- rep(c(1-valPi, valPi),c(4,4))
+valPi <- 0.15
+Pbot2 <- rep(c(1-valPi,valPi,1-valPi,valPi),c(2,2,2,2))
+valPi <- 0.02
+Pbot3 <- rep(c(1-valPi,valPi),4)
+alberoPro <- cbind(ProbC1=Pbot1,ProbC2=Pbot2,ProbC3=Pbot3)
+tavolaPro <- cbind(alberoPro,C1eC2eC3 =round(apply(alberoPro,1,prod),5))  
+tmp <- cbind(spazioCam,tavolaPro)
+dimnames(tmp) <- list(character(8),colnames(tmp))
+tmp
+@
+
+\item[3)]
+<<2-5-5-risposta3>>=
+cat(tmp[c(1),7],"\n")
+@
+
+\item[4)]
+<<2-5-5-risposta4>>=
+cat(sum(tmp[c(4,6,7),7]),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.6} \addcontentsline{toc}{section}{Esercizio 2.5.6}
+
+\begin{itemize}
+\item[1)]
+<<2-5-6-risposta1>>=
+cat(0.94*0.007 /(0.94*0.007 + (1-0.9)*(1-0.007)),"\n")
+@
+
+\item[2)]
+
+Condizionatamente all'evento $V = $ \lq \lq pollo portatore\rq \rq\ i test $T_1$, $T_2$ e $T_3$ sono
+indipendenti. La probabilità $P(V | T_1, T_2, T_3) = $ \Sexpr{round(0.94^3*0.007/(0.94^3*0.007+0.1^3*(1-0.007)),5)}.
+\end{itemize}
+
+\section*{Esercizio 2.5.7} \addcontentsline{toc}{section}{Esercizio 2.5.7}
+
+\begin{itemize}
+\item[1)]
+
+
+<<2-5-7-risposta1,results=hide>>=
+pigre <- 1/26
+probaEvento <- 1-3*pigre
+@
+$P(X = 3) = $ \Sexpr{round(pigre,5)}
+
+$P(X > 2 \cup X < 1) = $ \Sexpr{round(probaEvento,5)}
+
+\item[2)]
+<<2-5-7-risposta2>>=
+attesa <- sum(c(0:3)* c(21,3,1,1)*pigre)
+cat("Attesa: ",attesa,"\n")
+cat("Varianza: ",sum((c(0:3)-attesa)^2* c(21,3,1,1)*pigre),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.8} \addcontentsline{toc}{section}{Esercizio 2.5.8}
+
+\begin{itemize}
+\item[1)]
+<<2-5-8-risposta1>>=
+cat(dpois(0,0.51),"\n")
+@
+
+\item[2)]
+<<2-5-8-risposta2>>=
+cat(sum(dpois(0:4,0.01*177)),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.9} \addcontentsline{toc}{section}{Esercizio 2.5.9}
+
+\begin{itemize}
+\item[1)]
+<<2-5-9-risposta1>>=
+probaTmu2 <- 1-0.757-0.058
+cat(probaTmu2,"\n")
+@
+
+\item[2)]
+<<2-5-9-risposta2>>=
+valoriEspansi <- rep(
+0:5,
+1000*c(0.757,0.058,0.058,0.042,0.042,0.042)
+)
+mediana <- quantile(valoriEspansi,prob=0.5,type=1)
+primoQuartile <- quantile(valoriEspansi,prob=0.25,type=1)
+terzoQuartile <- quantile(valoriEspansi,prob=0.75,type=1)
+cat("moda: ",as.numeric(names(moda(valoriEspansi))),"\n")
+cat("Quantile 0.5: ",mediana,"\n")
+cat("Differenza interquartile: ",terzoQuartile-primoQuartile,"\n")
+attesa <- sum(0:5*c(0.757,0.058,0.058,0.042,0.042,0.042))
+cat("Attesa: ",attesa,"\n")
+varianza <- sum((0:5-attesa)^2*c(0.757,0.058,0.058,0.042,0.042,0.042))
+cat("Varianza: ",varianza,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.10} \addcontentsline{toc}{section}{Esercizio 2.5.10}
+
+\begin{itemize}
+\item[1)]
+<<2-5-10-risposta1>>=
+cat(8*0.08*0.92,"\n")
+@
+
+\item[2)]
+<<2-5-10-risposta2>>=
+cat(51*49/12,"\n")
+@
+
+\item[3)]
+<<2-5-10-risposta3>>=
+cat(1.068/9*365,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.11} \addcontentsline{toc}{section}{Esercizio 2.5.11}
+
+\begin{itemize}
+\item[1)]
+<<2-5-11-risposta1>>=
+cat(0.04*0.96,"\n")
+@
+
+\item[2)]
+<<2-5-11-risposta2>>=
+cat(dbinom(0,53,0.04)+dbinom(2,53,0.04),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.12} \addcontentsline{toc}{section}{Esercizio 2.5.12}
+
+\begin{itemize}
+\item[1)]
+<<2-5-12-risposta1>>=
+estrattore <- c(1,3,5,7)
+proUno <- sum(c(0.0744,0.0868,0.0993,0.1117,0.1772,0.1834,0.1709,0.0963)[estrattore])
+cat(proUno,"\n")
+@
+
+\item[2)]
+<<2-5-12-risposta2>>=
+estrattore <- c(1,5)
+cat(sum(c(0.0744,0.0868,0.0993,0.1117,0.1772,0.1834,0.1709,0.0963)[estrattore])/proUno,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.13} \addcontentsline{toc}{section}{Esercizio 2.5.13}
+
+\begin{itemize}
+\item[1)]
+<<2-5-13-risposta1>>=
+cat(dpois(1,2.32),"\n")
+@
+
+\item[2)]
+<<2-5-13-risposta2>>=
+cat(sum(dpois(0:4,2.32*4.99/2.32)),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.14} \addcontentsline{toc}{section}{Esercizio 2.5.14}
+
+\begin{itemize}
+\item[1)]
+<<2-5-14-risposta1>>=
+cat(pnorm(2.6447,2.5,sqrt(0.104)),"\n")
+@
+
+\item[2)]
+<<2-5-14-risposta2>>=
+q1 <- qnorm(0.95)
+q2 <- qnorm(1-0.98)
+A <- matrix(c(1,1,q1,q2),nrow=2,ncol=2)
+B <- matrix(c(3.66,2.31),nrow=2)
+cat("Media: ",solve(A,B)[1,1],"\n")
+cat("Varianza: ",solve(A,B)[2,1]**2,"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.15} \addcontentsline{toc}{section}{Esercizio 2.5.15}
+
+\begin{itemize}
+\item[1)]
+<<2-5-15-risposta1>>=
+cat(1-dpois(0,3.54)-dpois(1,3.54),"\n")
+@
+
+\item[2)]
+<<2-5-15-risposta2>>=
+options(digits=7)
+cat(1-dpois(0,3.54*6.15/1.5)-dpois(1,3.54*6.15/1.5),"\n")
+@
+\end{itemize}
+
+\section*{Esercizio 2.5.16} \addcontentsline{toc}{section}{Esercizio 2.5.16}
+
+\begin{itemize}
+\item[1)]
+<<2-5-16-risposta1>>=
+mu <- 165.9
+cat("Mediana: ",mu,"\n")
+@
+
+\item[2)]
+<<2-5-16-risposta2>>=
+sigma <- 0.038*165.9
+cat(pnorm(162.75,mu,sigma)-pnorm(156.4,mu,sigma),"\n")
+@
+\end{itemize}
+
+\end{document}
+

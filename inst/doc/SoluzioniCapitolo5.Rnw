@@ -1,0 +1,1239 @@
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage{utopia}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[margin=0.2cm,paper=a4paper]{geometry}
+\usepackage{graphicx}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage[nottoc]{tocbibind}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage[round]{natbib}
+\usepackage{bibentry}
+\usepackage[bookmarks=true,%
+colorlinks=true,
+urlcolor=red, %
+pdfpagemode=UseOutlines,%
+pdfborder={0 0 1},%
+urlbordercolor={1 0 0},%
+filecolor=black,%
+filebordercolor={1 0 0},%
+pdfdisplaydoctitle=true, %
+]{hyperref}              % For creating hyperlinks in cross references
+
+\hypersetup{ %
+pdfauthor={F. Frascati & F. M. Stefanini}, %
+pdftitle={INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R - Soluzioni degli esercizi di ricapitolazione Capitolo 5}, %
+pdfsubject={Introduzione al modello lineare} %
+} %
+
+%\VignetteIndexEntry{Soluzioni degli esercizi di ricapitolazione Capitolo 5}
+%\VignettePackage{ISA}
+%\VignetteDepends{ISA,stats,utils,tools}
+%\VignetteKeyword{univar,distribution,htest}
+
+\title{\textbf{\LARGE INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R}\\[0.3cm] %
+\makebox[\textwidth]{\large \url{http://hpe.pearsoned.it/stefanini}}\\[1cm]
+\centerline{\includegraphics[height=4.26cm,width=3cm]{./Ico/Index}} 
+\vspace{1cm} %
+\large \bf Soluzioni degli esercizi di ricapitolazione Capitolo 5:\\ \lq\lq Introduzione al modello lineare\rq\rq\\[2pt] %
+%Facoltà di Economia\\[2pt] % %Università degli Studi di Firenze\\[2pt] % 
+%A.A 2006-2007\\[2pt] % 
+} % 
+\author{F.~Frascati \and F.~M.~Stefanini} %
+
+\date{\today\\[20pt] \includegraphics[height=2.117cm,width=2.787cm]{./Ico/show}} %
+
+\linespread{1.3}
+
+\begin{document}
+
+\SweaveOpts{prefix.string=figure/Capitolo5/Esercizio,eps=F,echo=F} %
+\setkeys{Gin}{width=0.75\textwidth} %
+
+\maketitle
+
+<<results=hide>>=
+library(ISA)
+library(car)
+prova<-function(ridotto,esteso,displayridotto=TRUE,displayesteso=TRUE,displaytest=TRUE,alpha=0.05){
+if(displayridotto){
+cat("\nMODELLO RIDOTTO:")
+print(matrix(ridotto$beta[,1],nrow=length(ridotto$beta),dimnames=list(rownames(ridotto$beta),character(1))))
+cat("\nVarianza stimata: ",ridotto$varianzaStimata,"\n")
+cat("Devianza residua: ",ridotto$varianzaStimata*(length(vY)-length(ridotto$beta)),"\n")
+cat("gradi di libertà: ",length(vY)-length(ridotto$beta),"\n")
+}
+if(displayesteso){
+cat("\nMODELLO ESTESO:")
+print(matrix(esteso$beta[,1],nrow=length(esteso$beta),dimnames=list(rownames(esteso$beta),character(1))))
+cat("\nVarianza stimata: ",esteso$varianzaStimata,"\n")
+cat("Devianza residua: ",esteso$varianzaStimata*(length(vY)-length(esteso$beta)),"\n")
+cat("gradi di libertà: ",length(vY)-length(esteso$beta),"\n")
+}
+devResRidotto <- sum(ridotto$residui^2)
+devResEsteso <- sum(esteso$residui^2)
+parzialeDeltaRes <- devResRidotto-devResEsteso
+Fempirico <- (parzialeDeltaRes/(length(esteso$beta)-length(ridotto$beta))) / (esteso$varianzaStimata)
+GDLNUM <- length(esteso$beta)-length(ridotto$beta)
+GDLDEN <- length(esteso$Y)-length(esteso$beta)
+Fcrit <- qf(1-alpha,df1=GDLNUM,df2=GDLDEN)
+if(displaytest){
+cat("\nTEST DI IPOTESI:\n")
+cat("Contributo parziale: ",parzialeDeltaRes,"\n")
+cat("Fempirico: ",Fempirico,"\n")
+cat("Fteorico: ",Fcrit,"\n")
+cat("gradi di libertà: (",GDLNUM,",",GDLDEN,")\n")
+if(Fempirico>Fcrit) cat("\nRifiutare H0 con ampiezza",alpha,"\n") else cat("\nNon rifiutare H0 con ampiezza",alpha,"\n")
+}
+}    
+@
+ 
+\section*{Esercizio 5.3.1} \addcontentsline{toc}{section}{Esercizio 5.3.1}
+
+La tabella 5.8 contiene degli errori. La tabella corretta corrisponde ai dati sotto
+riportati (\verb+T = Temperatura+, \verb+V = Vitamina+, \verb+P = Proteina+):
+
+<<>>=
+data(esercizio.5.3.1)
+names(esercizio.5.3.1) <- c("T","V","P")
+dataDF <- esercizio.5.3.1
+@
+
+\begin{itemize}
+\item[1)]
+In termini matriciali $Y = X\, \beta + \varepsilon$ con $Y$ trasposto definita da \verb+P+:
+
+<<5-3-1-risposta1a>>=
+options(contrasts=c("contr.treatment","contr.poly"))
+dataDF$T <- as.factor(dataDF$T) 
+dataDF$V <- as.factor(dataDF$V)
+vY <- dataDF$P
+m1 <- aov(formula=P ~ T * V, data=dataDF)
+cat("aov(formula = P ~ T + V + T : V)\n")
+@
+
+e la matrice del disegno (due fattori con interazione):
+
+<<5-3-1-risposta1b>>=
+tmp <- model.matrix(m1)
+dimnames(tmp)[[2]][1] <- "beta0"
+tmp
+@
+
+\item[2)]
+
+<<5-3-1-risposta2>>=
+matrix(coef(m1),ncol=1,dimnames=list(names(coef(m1)),character(1)))
+matX <- as.matrix(tmp)
+res <- FLinearMod(vY,matX)
+cat("Stima della Varianza: ",res$varianzaStimata,"\n")
+@
+
+\item[3)]
+
+<<5-3-1-risposta3>>=
+anova(m1)
+cat("Fteorico con gradi di libertà (",3,",",11,"): ",qf(0.99,3,11),"\n")
+cat("Fteorico con gradi di libertà (",1,",",11,"): ",qf(0.99,1,11),"\n")
+@
+
+\item[4)]
+\begin{figure}[h]
+\centering
+<<5-3-1-risposta4,fig=T>>=
+qqnorm(res$residui)
+qqline(res$residui,col=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-1-risposta4.pdf}{Q-Q Plot}}
+ \label{fig:5-3-1-risposta4}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-1-risposta4}\end{NoHyper} mostra
+il diagramma Q-Q Plot dei residui del modello finale.
+
+\item[5)]
+Il principale commento riguarda la fonte di variazione \verb+T+ che è
+risultata significativa.
+
+\end{itemize}    
+
+\section*{Esercizio 5.3.2} \addcontentsline{toc}{section}{Esercizio 5.3.2}
+
+\begin{figure}[h]
+\centering
+<<5-3-2-risposta0,fig=T>>=
+dataDF <- esercizio.5.3.1
+plot(dataDF)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-2-risposta0.pdf}{Diagramma di dispersione}}
+ \label{fig:5-3-2-risposta0}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-2-risposta0}\end{NoHyper} rappresenta il diagramma di dispersione.
+
+\begin{itemize}
+\item[1)]
+<<5-3-2-risposta1>>=
+vY <- dataDF$P
+matX <- cbind(beta0=1,T = dataDF$T)
+modT <- FLinearMod(vY,matX)
+matrix(modT$beta[,1],nrow=length(modT$beta[,1]),dimnames=list(rownames(modT$beta),character(1)))
+cat("Varianza stimata: ",modT$varianzaStimata,"\n")
+@
+
+\item[2)]
+<<5-3-2-risposta2>>=
+matX <- cbind(beta0=1,V = dataDF$V)
+modV <- FLinearMod(vY,matX)
+matrix(c(modV$beta[1,1],modV$beta[2,1]),nrow=2,dimnames=list(c("beta0","V"),character(1)))
+cat("Varianza stimata: ",modV$varianzaStimata,"\n")
+@
+
+\item[3)]
+<<5-3-2-risposta3>>=
+matR <- cbind(beta0=1,T = dataDF$T,V = dataDF$V)
+matE <- cbind(beta0=1,T=dataDF$T,V=dataDF$V,TV=dataDF$T*dataDF$V)
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=F,displayesteso=T,displaytest=F,alpha=0.05)
+@
+
+\item[4)]
+<<5-3-2-risposta4>>=
+alpha <- 1-0.97
+estrattore <-2
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- ridotto$beta[estrattore, ]-qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata*ridotto$inversaXTX[estrattore,estrattore])
+elle2 <- ridotto$beta[estrattore, ]+qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata*ridotto$inversaXTX[estrattore,estrattore])
+cat("Intervallo di confidenza per beta1: (",elle1,",",elle2,")\n")
+estrattore <-3
+elle1 <- ridotto$beta[estrattore, ]-qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata*ridotto$inversaXTX[estrattore,estrattore])
+elle2 <- ridotto$beta[estrattore, ]+qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata*ridotto$inversaXTX[estrattore,estrattore])
+cat("Intervallo di confidenza per beta2: (",elle1,",",elle2,")\n")
+@
+
+\item[5)]
+<<5-3-2-risposta5>>=
+m1 <- lm(P ~ T+V, data=dataDF)
+previsione <- predict(m1,data.frame(T=27,V=2))
+cat("E[P | T = 27, V = 2] = ",previsione,"\n")
+@
+
+\item[6)]
+<<5-3-2-risposta6>>=
+xfuturo <- cbind(1,27,2)
+attesa <- xfuturo%*%ridotto$beta
+alpha <- 1-0.95
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- attesa-qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata)*sqrt(1 + xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+elle2 <- attesa+qt(1-alpha/2,df=16-3)*sqrt(ridotto$varianzaStimata)*sqrt(1 + xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+cat("Intervallo di previsione per la media condizionata: (",elle1,",",elle2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.3} \addcontentsline{toc}{section}{Esercizio 5.3.3}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.3)
+dataDF  <- esercizio.5.3.3
+@
+
+\item[1)]
+<<5-3-3-risposta1>>=
+vY <- dataDF$Y
+matR <- cbind(beta0=1,X1 = dataDF$X1,X2 = dataDF$X2)
+matE <- matX <- cbind(beta0=1,X1 = dataDF$X1,X2 = dataDF$X2,X12=dataDF$X1 * dataDF$X2)
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=F,displayesteso=T,displaytest=F,alpha=0.05)
+@
+
+\item[2)]
+<<5-3-3-risposta2>>=
+prova(ridotto,esteso,displayridotto=T,displayesteso=F,displaytest=T,alpha=0.05)
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-3-risposta2,fig=T>>=
+par(mfrow=c(2,2))
+qqnorm(esteso$residui)
+qqline(esteso$residui,col=2)
+plot(matX[,2],esteso$residui)
+plot(matX[,3],esteso$residui)
+plot(esteso$attesa,esteso$residui)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-3-risposta2.pdf}{Analisi grafica dei residui}}
+ \label{fig:5-3-3-risposta2}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-3-risposta2}\end{NoHyper} analizza graficamente i residui. In particolare
+segue l'evidenza di possibili violazioni delle assunzioni di normalità e di omogeneità della varianza.
+
+\item[4)]
+L'intercetta diventa la media della combinazione di livelli (cella) -1,-1.
+\end{itemize}
+
+\section*{Esercizio 5.3.4} \addcontentsline{toc}{section}{Esercizio 5.3.4}
+
+\begin{itemize}
+\item[1)]
+Eseguire il seguente codice:
+
+<<echo=T>>=
+enne <- 10000
+minimo <- 1
+massimo <- 10
+x <- runif(enne,minimo,massimo)
+epsilon <- rnorm(enne)
+dataDF  <- data.frame(x,epsilon)
+@
+
+\item[2)]
+
+<<echo=T>>=
+dataDF$Y <- 10 + 2*dataDF$x + dataDF$epsilon
+@
+
+\begin{figure}[h]
+\centering
+<<5-3-4-risposta2,fig=T>>=
+plot(dataDF$x, dataDF$Y,pch=".")
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-4-risposta2.pdf}{Diagramma di dispersione}}
+ \label{fig:5-3-4-risposta2}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-4-risposta2}\end{NoHyper} mostra il diagramma di dispersione
+di $Y$ su $x$.
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-4-risposta3,fig=T>>=
+plot(dataDF$x, dataDF$Y,pch=".")
+abline(9.989,2.002,col=2,lwd=2 )
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-4-risposta3.pdf}{Diagramma di dispersione e retta dei minimi quadrati}}
+ \label{fig:5-3-4-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-4-risposta3}\end{NoHyper} mostra il diagramma di dispersione
+e la retta dei minimi quadrati.
+
+\item[4)]
+\begin{figure}[h]
+\centering
+<<5-3-4-risposta4,fig=T>>=
+esteso <- lm(dataDF$Y ~ dataDF$x,dataDF)
+residui <- residuals(esteso)
+attesa <- fitted(esteso)
+par(mfrow=c(2,1))
+plot(attesa,residui)
+plot(dataDF$x,residui)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-4-risposta4.pdf}{Residui verso attesa e valori di $x$}}
+ \label{fig:5-3-4-risposta4}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-4-risposta4}\end{NoHyper} mostra il diagramma dei residui verso l'attesa
+di $Y$ e verso i valori di $X$.
+
+\item[5)]
+\begin{figure}[h]
+\centering
+<<5-3-4-risposta5,fig=T>>=
+devSTD <- sqrt(sum(residui^2)/(10000 - 2)) 
+hist(residui,prob=T,main="Istogramma dei residui",ylab="Densità")
+lines(seq(-5,5,0.05),dnorm(seq(-5,5,0.05),0,devSTD),col=2,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-4-risposta5.pdf}{Istogramma dei residui ed approssimazione normale}}
+ \label{fig:5-3-4-risposta5}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-4-risposta5}\end{NoHyper} mostra l'istogramma delle frequenze
+relative dei residui e sovrappone una gaussiana che ha media nulla e varianza uguale al valore stimato
+per $\sigma^{2}$.
+
+\item[6)]
+\begin{figure}[h]
+\centering
+<<5-3-4-risposta6,fig=T>>=
+qqnorm(residui)
+qqline(residui,col=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-4-risposta6.pdf}{Grafico Q-Q Plot dei residui}}
+ \label{fig:5-3-4-risposta6}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-4-risposta6}\end{NoHyper} mostra il grafico quantile-quantile
+dei residui.
+
+\item[7)]
+Lasciato per esercizio.
+\end{itemize}
+
+\section*{Esercizio 5.3.5} \addcontentsline{toc}{section}{Esercizio 5.3.5}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.5)
+dataDF <- esercizio.5.3.5
+@
+
+\item[1)]
+<<5-3-5-risposta1>>=
+vY <- cbind(esercizio.5.3.5$y)
+matX <- cbind(beta0=1,x = esercizio.5.3.5$x)
+esteso <- FLinearMod(vY,matX)
+matrix(c(esteso$beta[1,1],esteso$beta[2,1]),nrow=2,dimnames=list(c("beta0","x"),character(1)))
+@
+
+\item[2)]
+<<5-3-5-risposta2>>=
+xfuturo <- cbind(1,114.5)
+attesa <- xfuturo %*% esteso$beta
+alpha <- 1-0.95
+cat("E[Y | x = 114.5] = ",attesa[1,1],"\n")
+elle1 <- attesa - qt(1-alpha/2,df=3)*sqrt(esteso$varianzaStimata)*sqrt( xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+elle2 <- attesa + qt(1-alpha/2,df=3)*sqrt(esteso$varianzaStimata)*sqrt( xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+cat("1-alpha: ",1-alpha,"\n")
+cat("Intervallo di confidenza per la media condizionata: (",elle1,",",elle2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.6} \addcontentsline{toc}{section}{Esercizio 5.3.6}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.6)
+dataDF <- esercizio.5.3.6
+@
+
+\item[1)]
+<<5-3-6-risposta1>>=
+vY <- cbind(dataDF$titolo)
+matX <- cbind(beta0=1,x = dataDF$tempera)
+esteso <- FLinearMod(vY,matX)
+alpha <- 1-0.9
+estrattore <-2
+elle1 <- esteso$beta[estrattore, ] - qt(1-alpha/2,df=7-2 )*sqrt(esteso$varianzaStimata*esteso$inversaXTX[estrattore,estrattore])
+elle2 <- esteso$beta[estrattore, ] + qt(1-alpha/2,df=7-2 )*sqrt(esteso$varianzaStimata*esteso$inversaXTX[estrattore,estrattore])
+cat("1-alpha: ",1-alpha,"\n")
+cat("Intervallo di confidenza per beta1: (",elle1,",",elle2,")\n")
+@
+
+\item[2)]
+<<5-3-6-risposta2>>=
+xfuturo <- cbind(1,77)
+attesa <- xfuturo %*% esteso$beta
+cat("E[Y | x = 77] = ",attesa[1,1],"\n")
+elle1 <- attesa - qt(1-alpha/2,df=5)*sqrt(esteso$varianzaStimata)*sqrt(xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+elle2 <- attesa + qt(1-alpha/2,df=5)*sqrt(esteso$varianzaStimata)*sqrt(xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+cat("1-alpha: ",1-alpha,"\n")
+cat("Intervallo di confidenza per la media condizionata: (",elle1,",",elle2,")\n")
+@
+
+\item[3)]
+<<5-3-6-risposta3>>=
+cat("Varianza stimata: ",esteso$varianzaStimata,"\n")
+@
+
+\item[4)]
+<<5-3-6-risposta4>>=
+matR <- cbind(beta0=1,x = dataDF$tempera)
+matE <- cbind(beta0=1,x = dataDF$tempera, x2= dataDF$tempera^2)
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.05)
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.7} \addcontentsline{toc}{section}{Esercizio 5.3.7}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.7)
+dataDF <- esercizio.5.3.7
+@
+
+\item[1)]
+\begin{figure}[h]
+\centering
+<<5-3-7-risposta1,fig=T>>=
+plot(dataDF$X,dataDF$Y,xlab="X",ylab="Y",main="Diagramma di dispersione")
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-7-risposta1.pdf}{Diagramma di dispersione}}
+ \label{fig:5-3-7-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-7-risposta1}\end{NoHyper} rappresenta il diagramma di dispersione.
+
+\item[2)]
+<<5-3-7-risposta2>>=
+cat("Y = beta0 + beta1 * x + epsilon\n")
+@
+
+\item[3)]
+<<5-3-7-risposta3>>=
+vY <- cbind(dataDF$Y)
+matX <- cbind(beta0=1,x = dataDF$X)
+ridotto <- FLinearMod(vY,matX)
+matrix(c(ridotto$beta[1,1],ridotto$beta[2,1]),nrow=2,dimnames=list(c("beta0","x"),character(1)))
+cat("Varianza stimata: ",ridotto$varianzaStimata,"\n")
+@
+
+\item[4)]
+\begin{figure}[h]
+\centering
+<<5-3-7-risposta4,fig=T>>=
+plot(dataDF$X,dataDF$Y,xlab="X",ylab="Y",main="Diagramma di dispersione")
+abline(ridotto$beta[1,1],ridotto$beta[2,1],col=2,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-7-risposta4.pdf}{Attesa condizionata}}
+ \label{fig:5-3-7-risposta4}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-7-risposta4}\end{NoHyper} vede sovrapposto al grafico nel punto (1) il valore dell'attesa
+condizionata.
+
+\item[5)]
+Questa domanda chiede di effettuare un test di ipotesi per saggiare l'introduzione 
+di un termine di secondo grado.
+
+<<5-3-7-risposta5a>>=
+vY <- cbind(dataDF$Y)
+matR <- cbind(beta0=1,x = dataDF$X,x2 = dataDF$X^2)
+matE <- cbind(beta0=1,x = dataDF$X,x2 = dataDF$X^2,x3 = dataDF$X^3)
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.05)
+@
+
+E uno di terzo?
+
+<<5-3-7-risposta5b>>=
+vY <- cbind(dataDF$Y)
+matR <- cbind(beta0=1,x = dataDF$X)
+matE <- cbind(beta0=1,x = dataDF$X,x2 = dataDF$X^2)
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.05)
+@
+
+\item[6)]
+\begin{figure}[h]
+\centering
+<<5-3-7-risposta6,fig=T>>=
+par(mfrow=c(2,2))
+qqnorm(esteso$residui)
+qqline(esteso$residui,col=2,lwd=2)
+plot(esteso$X[,2],esteso$residui)
+plot(esteso$X[,3],esteso$residui)
+plot(esteso$attesa,esteso$residui)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-7-risposta6.pdf}{Analisi dei residui}}
+ \label{fig:5-3-7-risposta6}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-7-risposta6}\end{NoHyper} rappresenta l'analisi dei residui per il modello finale.
+\end{itemize}
+
+\section*{Esercizio 5.3.8} \addcontentsline{toc}{section}{Esercizio 5.3.8}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.8)
+dataDF <- esercizio.5.3.8
+@
+
+\item[1)]
+
+<<5-3-8-risposta1>>=
+cat("aov(formula = Y ~ dose)\n")
+vY <- dataDF$Y
+matE <- model.matrix(lm(Y ~ dose,dataDF))
+esteso <- FLinearMod(vY,matE)
+matR <-  model.matrix(lm(Y ~ 1,dataDF))
+ridotto <- FLinearMod(vY,matR)
+prova(ridotto,esteso,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.05)
+@
+
+\item[2)]
+Si rifiuta decisamente l'ipotesi nulla di uguaglianza tra
+medie di popolazione con ampiezza $\alpha = 0.05$. La conclusione per
+per $\alpha = 0.01$ sarebbe stata la stessa:
+
+<<5-3-8-risposta2>>=
+prova(ridotto,esteso,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.01)
+@
+
+\item[3)]
+Test di ipotesi per il primo contrasto:
+
+<<5-3-8-risposta3a>>=
+matX <-  model.matrix(lm(Y ~ dose,dataDF))
+esteso <- FLinearMod(vY,matX)
+QME <- esteso$varianzaStimata
+matX <-  cbind(rep(1,9),c(0,0,0,1,1,1,1,1,1))
+ridotto <- FLinearMod(vY,matX)
+prova(ridotto,esteso,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.05)
+@
+
+Test di ipotesi per il secondo contrasto:
+
+<<5-3-8-risposta3b>>=
+vY <- ridotto$Y
+matX <- cbind(rep(1,9))
+ridottissimo <- FLinearMod(vY,matX)
+prova(ridottissimo,ridotto,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.05)
+@
+
+\item[4)]
+
+<<5-3-8-risposta4>>=
+X <- as.numeric(dataDF$dose)-1
+matX <- model.matrix(lm(Y ~ X,data=dataDF))
+colnames(matX)<-c("beta0","X")
+regSem <- FLinearMod(vY,matX)
+matrix(regSem$beta[,1],nrow=length(regSem$beta),dimnames=list(colnames(matX),character(1)))
+@
+
+\item[5)]
+\begin{figure}[h]
+\centering
+<<5-3-8-risposta5,fig=T>>=
+plot(matX[,2],vY)
+abline(regSem$beta[1,1],regSem$beta[2,1],col=2,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-8-risposta5.pdf}{Valori osservati e retta dei minimi quadrati}}
+ \label{fig:5-3-8-risposta5}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-8-risposta5}\end{NoHyper} mostra
+diagrammati i valori osservati e la retta dei minimi quadrati.
+\end{itemize}
+
+\section*{Esercizio 5.3.9} \addcontentsline{toc}{section}{Esercizio 5.3.9}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.9)
+dataDF <- esercizio.5.3.9
+@
+
+\item[1)]
+
+Sintesi descrittive di \verb+X+:
+
+<<5-3-9-risposta1a>>=
+options(digits=7)
+summary(dataDF$X)
+cat("Varianza stimata: ",var(dataDF$X),"\n")
+@
+
+Sintesi descrittive di \verb+X+ condizionatamente a \verb+tempo = 1+:
+
+<<5-3-9-risposta1b>>=
+summary(dataDF$X[dataDF$tempo=="1"])
+cat("Varianza stimata: ",var(dataDF$X[dataDF$tempo=="1"]),"\n")
+@
+
+Sintesi descrittive di \verb+X+ condizionatamente a \verb+tempo = 2+:
+
+<<5-3-9-risposta1c>>=
+summary(dataDF$X[dataDF$tempo=="2"])
+cat("Varianza stimata: ",var(dataDF$X[dataDF$tempo=="2"]),"\n")
+@
+
+Sintesi descrittive di \verb+X+ condizionatamente a \verb+tempo = 3+:
+
+<<5-3-9-risposta1d>>=
+summary(dataDF$X[dataDF$tempo=="3"])
+cat("Varianza stimata: ",var(dataDF$X[dataDF$tempo=="3"]),"\n")
+options(digits=5)
+@
+
+\item[2)]
+\begin{figure}[h]
+\centering
+<<5-3-9-risposta2,fig=T>>=
+par(mfrow=c(1,3))
+qqnorm(dataDF$X[dataDF$tempo=="1"])
+qqline(dataDF$X[dataDF$tempo=="1"])
+qqnorm(dataDF$X[dataDF$tempo=="2"])
+qqline(dataDF$X[dataDF$tempo=="2"])
+qqnorm(dataDF$X[dataDF$tempo=="3"])
+qqline(dataDF$X[dataDF$tempo=="3"])
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-9-risposta2.pdf}{Normalità di $X$}}
+ \label{fig:5-3-9-risposta2}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-9-risposta2}\end{NoHyper} permette
+di studiare graficamente la normalità delle distribuzioni condizionate al tempo.
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-9-risposta3a,fig=T>>=
+par(mfrow=c(1,3))
+dataDF$Y <- sqrt(dataDF$X)
+qqnorm(dataDF$Y[dataDF$tempo=="1"])
+qqline(dataDF$Y[dataDF$tempo=="1"])
+qqnorm(dataDF$Y[dataDF$tempo=="2"])
+qqline(dataDF$Y[dataDF$tempo=="2"])
+qqnorm(dataDF$Y[dataDF$tempo=="3"])
+qqline(dataDF$Y[dataDF$tempo=="3"])
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-9-risposta3a.pdf}{Normalità della trasformata $Y = \sqrt{X}$}}
+ \label{fig:5-3-9-risposta3a}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<5-3-9-risposta3b,fig=T>>=
+par(mfrow=c(1,3))
+dataDF$Z <- log(dataDF$X)
+qqnorm(dataDF$Z[dataDF$tempo=="1"])
+qqline(dataDF$Z[dataDF$tempo=="1"])
+qqnorm(dataDF$Z[dataDF$tempo=="2"])
+qqline(dataDF$Z[dataDF$tempo=="2"])
+qqnorm(dataDF$Z[dataDF$tempo=="3"])
+qqline(dataDF$Z[dataDF$tempo=="3"])
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-9-risposta3b.pdf}{Normalità della trasformata $Z = \log\left({X}\right)$}}
+ \label{fig:5-3-9-risposta3b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-9-risposta3a}\end{NoHyper}
+studia la normalità (condizionata alla variabile \verb+tempo+) della trasformata $Y = \sqrt{X}$ mentre la Figura~\begin{NoHyper}\ref{fig:5-3-9-risposta3b}\end{NoHyper}
+si occupa della trasformata $Z = \log\left({X}\right)$.
+
+\item[4)]
+Test per effetto del tempo di prelievo sulla scala di $Z = \log{\left(X\right)}$.
+
+<<5-3-9-risposta4>>=
+vY <- dataDF$Z
+matE <- model.matrix(lm(Z ~ factor(tempo),dataDF))
+matR <- matE[,-c(2,3)]
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.01)
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.10} \addcontentsline{toc}{section}{Esercizio 5.3.10}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.10)
+dataDF <- esercizio.5.3.10
+@
+
+\item[1)]
+
+<<5-3-10-risposta1>>=
+vY <- dataDF$tempera
+matR <- cbind(beta0 = 1, secondi =dataDF$secondi)
+ridotto <- FLinearMod(vY,matR)
+matrix(ridotto$beta[,1],nrow=length(ridotto$beta),dimnames=list(colnames(matR),character(1)))
+@
+
+\item[2)]
+\begin{figure}[h]
+\centering
+<<5-3-10-risposta2,fig=T>>=
+par(mfrow=c(2,2))
+qqnorm(ridotto$residui)
+qqline(ridotto$residui,col=2,lwd=2)
+plot(ridotto$X[,2],ridotto$residui)
+abline(0,0,col=3,lwd=2)
+plot(ridotto$attesa,ridotto$residui)
+abline(0,0,col=3,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-10-risposta2.pdf}{Analisi dei residui}}
+ \label{fig:5-3-10-risposta2}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-10-risposta2}\end{NoHyper} rappresenta
+graficamente l'analisi dei residui.
+
+\item[3)]
+
+<<5-3-10-risposta3>>=
+dataDF$secondi2 <- dataDF$secondi**2
+matE <- cbind(beta0=1, secondi=dataDF$secondi, secondi2=dataDF$secondi2)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.01)
+@
+
+\item[4)]
+
+<<5-3-10-risposta4>>=
+vY <- dataDF$tempera
+matE <- model.matrix(lm(tempera ~ factor(dispensatore),dataDF))
+names(matE)<-c("beta0","dispensatore2","dispensatore3","dispensatore4")
+matR <- matE[,1]
+ridotto <- FLinearMod(vY,matR)
+esteso <- FLinearMod(vY,matE)
+prova(ridotto,esteso,displayridotto=F,displayesteso=F,displaytest=T,alpha=0.05)
+@
+
+\item[5)]
+
+<<5-3-10-risposta5>>=
+matE <- cbind(beta0=1, secondi=dataDF$secondi, secondi2=dataDF$secondi2)
+esteso <- FLinearMod(vY,matE)
+attesa <- cbind(1,250,250^2) %*% esteso$beta
+cat("E[tempera | secondi = 250, secondi2 = 250^2] = ",attesa,"\n")
+@
+
+\item[6)]
+
+<<5-3-10-risposta6>>=
+xfuturo <- cbind(1, 17.7,17.7^2)
+attesa <- cbind(1,17.7,17.7^2) %*% esteso$beta
+alpha <- 1-0.95
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- attesa - qt(1-alpha/2,df=length(vY)-length(esteso$beta))*sqrt(esteso$varianzaStimata)*sqrt(1 + xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+elle2 <- attesa + qt(1-alpha/2,df=length(vY)-length(esteso$beta))*sqrt(esteso$varianzaStimata)*sqrt(1 + xfuturo %*% esteso$inversaXTX %*%t(xfuturo))
+cat("Intervallo di previsione per la media condizionata: (",elle1,",",elle2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.11} \addcontentsline{toc}{section}{Esercizio 5.3.11}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.11)
+dataDF <-  esercizio.5.3.11
+@
+
+\item[1)]
+
+<<5-3-11-risposta1>>=
+summary(dataDF)
+@
+
+\item[2)]
+
+<<5-3-11-risposta2>>=
+vY <- dataDF$polifenoli
+matX <- cbind(beta0 = 1, X =dataDF$flavo)
+esteso <- FLinearMod(vY,matX)
+matrix(esteso$beta[,1],nrow=length(esteso$beta),dimnames=list(colnames(matX),character(1)))
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-11-risposta3,fig=T>>=
+plot(dataDF$flavo,dataDF$polifenoli)
+abline(esteso$beta,col=2,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-11-risposta3.pdf}{Diagramma di dispersione e retta dei minimi quadrati}}
+ \label{fig:5-3-11-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-11-risposta3}\end{NoHyper}
+rappresenta il diagramma di dispersione e la retta dei minimi quadrati.
+
+\item[4)]
+
+Distanza di \emph{Cook} per ogni unità campionaria:
+
+<<5-3-11-risposta4a>>=
+cooks.distance(lm(polifenoli~flavo,data=dataDF))
+@
+
+\begin{figure}[h]
+\centering
+<<5-3-11-risposta4b,fig=T>>=
+plot(cooks.distance(lm(polifenoli~flavo,data=dataDF)),type="b",ylab="Distanza di Cook")
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-11-risposta4b.pdf}{Distanza di \emph{Cook}}}
+ \label{fig:5-3-11-risposta4b}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-11-risposta4b}\end{NoHyper}
+rappresenta il grafico della distanza di \emph{Cook}.
+
+\item[5)]
+\begin{figure}[h]
+\centering
+<<5-3-11-risposta5,fig=T>>=
+par(mfrow=c(2,2))
+qqnorm(esteso$residui)
+qqline(esteso$residui,col=2,lwd=2)
+plot(esteso$X[,2],esteso$residui)
+abline(0,0,col=3,lwd=2)
+plot(esteso$attesa,esteso$residui)
+abline(0,0,col=3,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-11-risposta5.pdf}{Analisi dei residui}}
+ \label{fig:5-3-11-risposta5}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-11-risposta5}\end{NoHyper} mostra
+l'analisi dei residui.
+\end{itemize}
+
+\section*{Esercizio 5.3.12} \addcontentsline{toc}{section}{Esercizio 5.3.12}
+
+\begin{itemize}
+\item[1)]
+Da svolgere.
+
+\item[2)]
+Da svolgere.
+
+\item[3)]
+Da svolgere.
+\end{itemize}
+
+\section*{Esercizio 5.3.13} \addcontentsline{toc}{section}{Esercizio 5.3.13}
+
+\begin{itemize}
+<<>>=
+data(esercizio.4.4.13)
+dataDF <- esercizio.4.4.13
+@
+
+\item[1)]
+
+<<5-3-13-risposta1>>=
+cat("Parametrizzazione a trattamento (corner):\n")
+matXt <- model.matrix(~A*S,dataDF,contrasts=list(A="contr.treatment",S="contr.treatment"))
+matXt
+matXs <- model.matrix(~A*S,dataDF,contrasts=list(A="contr.sum",S="contr.sum"))
+cat("Parametrizzazione a media a somma nulla:\n")
+matXs
+cat("Parametrizzazione a media di cella:\n")
+matXm <- model.matrix(~-1+code,dataDF,contrasts=list(code="contr.treatment"))
+matXm
+@
+
+\item[2)]
+
+<<5-3-13-risposta2>>=
+vY <- dataDF$Y
+matE <- matXt
+esteso <- FLinearMod(vY,matE)
+matR <- matE[,-c(5,6)]
+ridotto <- FLinearMod(vY,matR)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.01)
+@
+
+\item[3)]
+
+<<5-3-13-risposta3>>=
+xfuturo <- cbind(1, 1,0,0)
+attesa <- xfuturo %*% ridotto$beta
+cat("Attesa: ",attesa,"\n")
+alpha <- 1-0.95
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- attesa - qt(1-alpha/2,df=14)*sqrt(ridotto$varianzaStimata)*sqrt(xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+elle2 <- attesa + qt(1-alpha/2,df=14)*sqrt(ridotto$varianzaStimata)*sqrt(xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+cat("Intervallo di previsione per la media condizionata: (",elle1,",",elle2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.14} \addcontentsline{toc}{section}{Esercizio 5.3.14}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.14)
+dataDF <- esercizio.5.3.14
+@
+
+\item[1)]
+Sintesi descrittive di \verb+caloria+:
+
+<<5-3-14-risposta1>>=
+summary(esercizio.5.3.14$caloria)
+cat("Varianza stimata: ",var(esercizio.5.3.14$caloria),"\n")
+@
+
+\item[2)]
+La variabile \verb+fibra+ trasformata nel fattore \verb+fibraQ+:
+
+<<5-3-14-risposta2>>=
+dataDF$fibraQ <- cut(dataDF$fibra,breaks=23:27,include.lowest=T)
+table(dataDF$fibraQ)
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-14-risposta3,fig=T>>=
+boxplot(dataDF$caloria~dataDF$fibraQ,ylab="caloria",xlab="Classe-fibra")
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-14-risposta3.pdf}{Boxplot di {\tt caloria} condizionata a {\tt fibraQ}}}
+ \label{fig:5-3-14-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-14-risposta3}\end{NoHyper} rappresenta il Boxplot
+di \verb+caloria+ condizionata a \verb+fibraQ+.
+
+\item[4)]
+Si osservono forti differenze nelle distribuzioni condizionate.
+
+\item[5)]
+
+<<5-3-14-risposta5>>=
+cat("lm(caloria~(fibra+grass+carboidrat)^3)\n")
+@
+
+\item[6)]
+
+<<5-3-14-risposta6>>=
+esteso <- lm(caloria~(fibra+grass+carboidrat)^3,data=dataDF)
+modStep <- step(esteso,direction="backward",trace=0)
+summary(modStep)
+@
+
+\item[7)]
+\begin{figure}[h]
+\centering
+<<5-3-14-risposta7,fig=T>>=
+residui <- residuals(modStep)
+attesa <- fitted(modStep)
+par(mfrow=c(3,2))
+qqnorm(residui)
+qqline(residui,col=2,lwd=2)
+plot(dataDF$fibra,residui)
+abline(0,0,col=3,lwd=2)
+plot(dataDF$carboidrat,residui)
+abline(0,0,col=3,lwd=2)
+plot(dataDF$grass,residui)
+abline(0,0,col=3,lwd=2)
+plot(attesa,residui)
+abline(0,0,col=3,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-14-risposta7.pdf}{Analisi dei residui}}
+ \label{fig:5-3-14-risposta7}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-14-risposta7}\end{NoHyper}
+mostra graficamente l'analisi dei residui.
+
+\item[8)]
+
+<<5-3-14-risposta8>>=
+attesa <- predict(modStep,data.frame(fibra=26.5,grass=89.5,carboidrat=120),interval="prediction",level=1-alpha)[[1]]
+cat("E[caloria | fibra = 26.5, grass = 89.5, carboidrat = 120] = ",attesa,"\n")
+alpha <- 1-0.98
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- predict(modStep,data.frame(fibra=26.5,grass=89.5,carboidrat=120),interval="prediction",level=1-alpha)[[2]]
+elle2 <- predict(modStep,data.frame(fibra=26.5,grass=89.5,carboidrat=120),interval="prediction",level=1-alpha)[[3]]
+cat("Intervallo di previsione per la media condizionata: (",elle1,",",elle2,")\n")
+@
+\end{itemize}
+
+\section*{Esercizio 5.3.15} \addcontentsline{toc}{section}{Esercizio 5.3.15}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.15)
+dataDF <- esercizio.5.3.15
+@
+
+\item[1)]
+\begin{figure}[h]
+\centering
+<<5-3-15-risposta1,fig=T>>=
+plot(dataDF$X,dataDF$Y) 
+points(dataDF$X,dataDF$Y,col=as.numeric(dataDF$Z)+2)
+points(dataDF$X,dataDF$Y,pch=".")
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-15-risposta1.pdf}{Diagramma di dispersione delle variabili quantitative}}
+ \label{fig:5-3-15-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-15-risposta1}\end{NoHyper} rappresenta il
+diagramma di dispersione delle variabili quantitative con punti colorati
+in dipendenza del valore assunto dalla $Z$.
+
+\item[2)]
+
+<<5-3-15-risposta2>>=
+vY <- dataDF$Y
+matX <- cbind(beta0 = 1, X =dataDF$X)
+ridotto <- FLinearMod(vY,matX)
+matrix(ridotto$beta,ncol=1,dimnames=list(rownames(ridotto$beta),character(1)))
+xfuturo <- cbind(1, 38.5)
+attesa <- xfuturo %*% ridotto$beta
+cat("E[Y | x = 38.5] = ",attesa[1,1],"\n")
+alpha <- 1-0.95
+cat("1-alpha: ",1-alpha,"\n")
+elle1 <- attesa - qt(1-alpha/2,df=length(vY)-length(ridotto$beta))*sqrt(ridotto$varianzaStimata)*sqrt(xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+elle2 <- attesa + qt(1-alpha/2,df=length(vY)-length(ridotto$beta))*sqrt(ridotto$varianzaStimata)*sqrt(xfuturo %*% ridotto$inversaXTX %*%t(xfuturo))
+cat("Intervallo di previsione per la media condizionata: (",elle1,",",elle2,")\n")
+@
+
+\item[3)]
+\begin{figure}[h]
+\centering
+<<5-3-15-risposta3,fig=T>>=
+plot(dataDF$X,dataDF$Y) 
+abline(ridotto$beta[1,1],ridotto$beta[2,1],col=4,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-15-risposta3.pdf}{Diagramma di dispersione e retta dei minimi quadrati}}
+ \label{fig:5-3-15-risposta3}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-15-risposta3}\end{NoHyper} mostra
+il diagramma di dispersione originale e la retta dei minimi quadrati ottenuta al punto precedente.
+
+\item[4)]
+
+<<5-3-15-risposta4>>=
+cat("Modello con interazione:\n")
+vY <- dataDF$Y
+matX <- cbind(beta0=1,X=dataDF$X,Z=dataDF$Z,XZ=dataDF$X*dataDF$Z)
+esteso <- FLinearMod(vY,matX)
+matrix(esteso$beta,ncol=1,dimnames=list(rownames(esteso$beta),character(1)))
+cat("Modello comune:\n")
+vY <- dataDF$Y
+matrix(ridotto$beta,ncol=1,dimnames=list(rownames(ridotto$beta),character(1)))
+cat("Regressione specifica gruppo Z = 0:\n")
+m0 <- lm(dataDF$Y[dataDF$Z=="0"]~dataDF$X[dataDF$Z=="0"])
+coefficientiZ0 <- as.vector(coef(m0))
+names(coefficientiZ0)<-c("beta0","X")
+matrix(coefficientiZ0,ncol=1,dimnames=list(names(coefficientiZ0),character(1)))
+cat("Regressione specifica gruppo Z = 1:\n")
+m1 <- lm(dataDF$Y[dataDF$Z=="1"]~dataDF$X[dataDF$Z=="1"])
+coefficientiZ1 <- as.vector(coef(m1))
+names(coefficientiZ1)<-c("beta0","X")
+matrix(coefficientiZ1,ncol=1,dimnames=list(names(coefficientiZ1),character(1)))
+@
+
+\item[5)]
+\begin{figure}[h]
+\centering
+<<5-3-15-risposta5,fig=T>>=
+plot(dataDF$X,dataDF$Y) 
+points(dataDF$X,dataDF$Y,col=as.numeric(dataDF$Z)+2)
+points(dataDF$X,dataDF$Y,pch=".")
+abline(coef(m0),col=4,lwd=2)
+abline(coef(m1),col=4,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-15-risposta5.pdf}{Diagramma di dispersione e rette di regressione}}
+ \label{fig:5-3-15-risposta5}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-15-risposta5}\end{NoHyper} rappresenta il
+diagramma di dispersione delle variabili quantitative con punti colorati
+in dipendenza del valore assunto dalla $Z$ e sovraimposte le due rette di
+regressione ottenute al punto precedente.
+
+\item[6)]
+
+<<5-3-15-risposta6>>=
+vY <- dataDF$Y
+matX <- cbind(beta0 = 1, X =dataDF$X,Z =dataDF$Z)
+ridotto <- FLinearMod(vY,matX)
+matX <- cbind(beta0=1,X=dataDF$X,Z=dataDF$Z,XZ=dataDF$X*dataDF$Z)
+esteso <- FLinearMod(vY,matX)
+prova(ridotto,esteso,displayridotto=T,displayesteso=T,displaytest=T,alpha=0.05)
+@
+
+\item[7)]
+
+<<5-3-15-risposta7>>=
+cat("lm(formula = Y ~ X + Z + X : Z)\n")
+@
+
+\item[8)]
+\begin{figure}[h]
+\centering
+<<5-3-15-risposta8,fig=T>>=
+par(mfrow=c(2,2))
+residui <- esteso$residui
+qqnorm(residui)
+qqline(residui,col=2,lwd=2)
+plot(dataDF$X,residui)
+abline(0,0,col=3,lwd=2)
+plot(dataDF$Z,residui)
+abline(0,0,col=3,lwd=2)
+plot(esteso$attesa,residui)
+abline(0,0,col=3,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-15-risposta8.pdf}{Analisi dei residui}}
+ \label{fig:5-3-15-risposta8}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-15-risposta8}\end{NoHyper} mostra
+graficamente l'analisi dei residui del modello selezionato.
+\end{itemize}
+
+\section*{Esercizio 5.3.16} \addcontentsline{toc}{section}{Esercizio 5.3.16}
+
+\begin{itemize}
+<<>>=
+data(esercizio.5.3.16)
+dataDF <- esercizio.5.3.16
+@
+
+\item[1)]
+
+<<5-3-16-risposta1>>=
+esteso <- lm(pH~conservante*correttore*esaltatore-conservante:correttore:esaltatore,data=dataDF)
+matrix(coefficients(esteso),ncol=1,dimnames=list(names(coefficients(esteso)),character(1)))
+@
+
+\item[2)]
+Posto $\alpha = 0.1$, termina con il modello che ha intercetta, \verb+conservante+ e
+\verb+esaltatore+:
+
+<<5-3-16-risposta2>>=
+aggiornato <- update(esteso,.~. -correttore:esaltatore
+                                -conservante:correttore
+                                -conservante:esaltatore
+                                -correttore)
+cat("lm(formula = Ph ~ conservante + esaltatore)\n")
+@
+
+\item[3)]
+Caricare il \emph{package} \verb+car+ attraverso il comando \verb+library(package="car")+ .
+
+<<5-3-16-risposta3>>=
+Anova(aggiornato,,type="III")
+@
+
+\item[4)]
+\begin{figure}[h]
+\centering
+<<5-3-16-risposta4,fig=T>>=
+par(mfrow=c(2,2))
+residui <- aggiornato$residuals
+attesa <- fitted(esteso)
+qqnorm(residui)
+qqline(residui,col=2,lwd=2)
+plot(dataDF$conservante,residui)
+abline(0,0,col=3,lwd=2)
+title("Conservante")
+plot(dataDF$esaltatore,residui)
+abline(0,0,col=3,lwd=2)
+title("Esaltatore") 
+plot(attesa,residui)
+abline(0,0,col=3,lwd=2)
+@
+ \caption{\href{file:Figure/Capitolo5/Esercizio-5-3-16-risposta4.pdf}{Analisi dei residui}}
+ \label{fig:5-3-16-risposta4}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:5-3-16-risposta4}\end{NoHyper} mostra
+graficamente l'analisi dei residui del modello finale.
+\end{itemize}
+
+
+\end{document}

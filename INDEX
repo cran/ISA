@@ -1,0 +1,35 @@
+Funzioni:
+=========
+
+boxPstd                 Boxplot standard
+coefVariaz              Coefficiente di variazione
+difSempliceMed          Differenza semplice media
+fiveNumbersSummary      Cinque numeri di Tukey
+FLinearMod              Minimi quadrati ordinari
+media                   Media aritmetica
+moda                    Moda
+quantiB                 Quantili
+varpopol                Varianza nella popolazione
+
+
+Data frames:
+============
+
+esercizio.1.4.10        Data frame Esercizio 1.4.10
+esercizio.1.4.14        Data frame Esercizio 1.4.14
+esercizio.4.4.1         Data frame Esercizio 4.4.1
+esercizio.4.4.13        Data frame Esercizio 4.4.13
+esercizio.4.4.14        Data frame Esercizio 4.4.14
+esercizio.5.3.1         Data frame Esercizio 5.3.1
+esercizio.5.3.3         Data frame Esercizio 5.3.3
+esercizio.5.3.5         Data frame Esercizio 5.3.5
+esercizio.5.3.6         Data frame Esercizio 5.3.6
+esercizio.5.3.7         Data frame Esercizio 5.3.7
+esercizio.5.3.8         Data frame Esercizio 5.3.8
+esercizio.5.3.9         Data frame Esercizio 5.3.9
+esercizio.5.3.10        Data frame Esercizio 5.3.10
+esercizio.5.3.11        Data frame Esercizio 5.3.11
+esercizio.5.3.12        Data frame Esercizio 5.3.12
+esercizio.5.3.14        Data frame Esercizio 5.3.14
+esercizio.5.3.15        Data frame Esercizio 5.3.15
+esercizio.5.3.16        Data frame Esercizio 5.3.16

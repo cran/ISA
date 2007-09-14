@@ -1,0 +1,1036 @@
+\documentclass[a4paper,12pt,titlepage]{article}
+\usepackage{utopia}
+\usepackage{fancybox}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[margin=0.2cm,paper=a4paper]{geometry}
+\usepackage{graphicx}
+\usepackage[italian]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{a4}
+\usepackage[nottoc]{tocbibind}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+\usepackage[round]{natbib}
+\usepackage{bibentry}
+\usepackage[bookmarks=true,%
+colorlinks=true,
+urlcolor=red, %
+pdfpagemode=UseOutlines,%
+pdfborder={0 0 1},%
+urlbordercolor={1 0 0},%
+filecolor=black,%
+filebordercolor={1 0 0},%
+pdfdisplaydoctitle=true, %
+]{hyperref}              % For creating hyperlinks in cross references
+
+\hypersetup{ %
+pdfauthor={F. Frascati & F. M. Stefanini}, %
+pdftitle={INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R - Soluzioni degli esercizi di ricapitolazione Capitolo 4}, %
+pdfsubject={Il test delle ipotesi} %
+} %
+
+%\VignetteIndexEntry{Soluzioni degli esercizi di ricapitolazione Capitolo 4}
+%\VignettePackage{ISA}
+%\VignetteDepends{ISA,stats,utils,tools}
+%\VignetteKeyword{univar,distribution,htest}
+
+\title{\textbf{\LARGE INTRODUZIONE ALLA STATISTICA APPLICATA con esempi in R}\\[0.3cm] %
+\makebox[\textwidth]{\large \url{http://hpe.pearsoned.it/stefanini}}\\[1cm]
+\centerline{\includegraphics[height=4.26cm,width=3cm]{./Ico/Index}}
+\vspace{1cm} %
+\large \bf Soluzioni degli esercizi di ricapitolazione Capitolo 4:\\ \lq\lq Il test delle ipotesi\rq\rq\\[2pt] %
+%Facoltà di Economia\\[2pt] %
+%Università degli Studi di Firenze\\[2pt] %
+%A.A 2006-2007\\[2pt] %
+}
+\author{F.~Frascati \and F.~M.~Stefanini} %
+
+\date{\today\\[20pt] \includegraphics[height=2.117cm,width=2.787cm]{./Ico/show}} %
+
+\linespread{1.3}
+
+\begin{document}
+
+\SweaveOpts{prefix.string=figure/Capitolo4/Esercizio,eps=F,echo=F} %
+\setkeys{Gin}{width=0.68\textwidth} %
+
+\maketitle
+
+<<results=hide>>=
+library(ISA)
+@
+ 
+\section*{Esercizio 4.4.1} \addcontentsline{toc}{section}{Esercizio 4.4.1}
+
+\begin{itemize}
+<<>>=
+data(esercizio.4.4.1)
+DFlavoro <- esercizio.4.4.1
+@
+
+\item[1)]
+<<4-4-1-risposta1>>=
+enne <- 301
+frequenze <- DFlavoro$frequenze
+val <- unique(DFlavoro$Y)
+freqrel <- c(sum(frequenze[DFlavoro$Y=="0"]),sum(frequenze[DFlavoro$Y=="1"]))/enne
+matrix(c(val,freqrel),nrow=2,dimnames=list(character(2),c("Y","Freq")))
+@
+
+La percentuale dei capi malati ammonta al \Sexpr{round(freqrel[2],5)*100} $\%$.
+
+\item[2)]
+L'ipotesi da testare è l'associazione tra malattia ed età.
+<<4-4-1-risposta2>>=
+frequenzeoss <- matrix(frequenze,nrow=2)
+marginX <- c(9+9,38+19,47+179)
+marginY <- c(9+38+47,9+19+179)
+frequenzecalc <- matrix(outer(marginY,marginX,"*"),nrow=2)/enne
+chi2emp <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.05
+gdl <- (2-1)*(3-1)
+chi2crit <- qchisq(1-alpha,df=gdl)
+cat("Statistica test: ",chi2emp,"\n")
+cat("pvalue: ",1-pchisq(chi2emp,df=gdl),"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",chi2crit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+if(chi2emp>chi2crit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=2,ncol=3,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 2")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=2,ncol=3,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 2")))
+cat("Residui di Pearson:\n")
+matrix((frequenzeoss-frequenzecalc)/sqrt(frequenzecalc),nrow=2,ncol=3,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 2")))
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-1-risposta2,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=2),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 2 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(-tempirico,lim.dx,by=0.01)
+#ya <- c(dt(xa,df=77),0,0)
+#xa <- c(xa,lim.dx,-tempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(5,0.4,paste("c = ",round(chi2emp,5),"\npvalue = ",signif(1-pchisq(chi2emp,df=2),7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.2} \addcontentsline{toc}{section}{Esercizio 4.4.2}
+
+\begin{itemize}
+\item[1)]
+<<4-4-2-risposta1>>=
+cat("H0: mu1 = mu2 \nH1: mu1 != mu2\n")
+@
+
+\item[2)]
+<<4-4-2-risposta2>>=
+n1 <- 31
+n2 <- 48
+media1 <- 37.57
+media2 <- 37.71
+var1 <- 0.0912
+var2 <- 0.1452
+alpha <- 0.01
+gdl <- n1+n2-2
+Spooled <- sqrt(((n1-1)*var1+(n2-1)*var2)/gdl)
+tempirico <- (media1-media2)/(Spooled*sqrt(1/n1+1/n2))
+tcrit <- qt(1-alpha/2,df=gdl)
+cat("Statistica test: ",tempirico,"\n")
+cat("Valore critico con ampiezza",alpha,"(bilaterale): -/+",tcrit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+cat("Spooled: ",Spooled,"\n")
+if(abs(tempirico)>tcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+
+\item[3)]
+<<4-4-2-risposta3>>=
+pvalue <- 2*pt(-abs(tempirico),df=gdl)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-2-risposta3,fig=TRUE>>=
+lim.sx <- -10
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dt(x,df=77),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(t)," di Student con 77 gradi di libertà")),type="l")
+xa <- seq(lim.sx,tempirico,by=0.01)
+ya <- c(dt(xa,df=77),0,0)
+xa <- c(xa,tempirico,lim.sx)
+polygon(xa,ya,col="black")
+xa <- seq(-tempirico,lim.dx,by=0.01)
+ya <- c(dt(xa,df=77),0,0)
+xa <- c(xa,lim.dx,-tempirico)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("t = ",round(tempirico,6),"\npvalue = ",round(pvalue,8)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.3} \addcontentsline{toc}{section}{Esercizio 4.4.3}
+
+\begin{itemize}
+\item[1)]
+<<4-4-3-risposta1>>=
+enne <- 88
+frequenzeoss <- c(perfetti=54,lieviImp=29,graviImp=5)
+prop <- c(perfetti= 0.5,lieviImp=0.25,graviImp=1-0.5-0.25)
+frequenzecalc <- prop*enne
+k <- length(frequenzeoss)
+chi2emp <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.1
+chi2crit <- qchisq(1-alpha,df=k-1)
+cat("Statistica test: ",chi2emp,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",chi2crit,"\n")
+cat("gradi di libertà: ",k-1,"\n")
+if(chi2emp>chi2crit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=1,ncol=3,dimnames=list(character(1),c("No Imperfezioni","Lievi imperfezioni","Gravi imperfezioni")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=1,ncol=3,dimnames=list(character(1),c("No Imperfezioni","Lievi imperfezioni","Gravi imperfezioni")))
+@
+
+\item[2)]
+<<4-4-3-risposta2>>=
+pvalue <- 1-pchisq(chi2emp,df=k-1)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-3-risposta2,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=2),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 2 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+xa <- seq(chi2emp,lim.dx,by=0.01)
+ya <- c(dchisq(xa,df=2),0,0)
+xa <- c(xa,lim.dx,chi2emp)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(10,0.4,paste("c = ",round(chi2emp,5),"\npvalue = ",round(1-pchisq(chi2emp,df=2),10)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.4} \addcontentsline{toc}{section}{Esercizio 4.4.4}
+
+\begin{itemize}
+\item[1)]
+<<4-4-4-risposta1>>=
+frequenzeoss <- matrix(c(57,84,50,56,133,66,81,141,86),nrow=3,dimnames=list(c("bassa","media","alta"),c("Brembana","Seriana","Torta")))
+enne <- sum(frequenzeoss)
+marginX <- c(57+56+81,84+133+141,50+66+86)
+marginY <- c(57+84+50,56+133+66,81+141+86)
+frequenzecalc <- matrix(outer(marginX,marginY,"*"),nrow=3)/enne
+chi2emp <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.01
+gdl <- (3-1)*(3-1)
+chi2crit <- qchisq(1-alpha,df=gdl)
+cat("Statistica test: ",chi2emp,"\n")
+pvalue <- 1-pchisq(chi2emp,df=gdl)
+cat("pvalue: ",pvalue,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",chi2crit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+if(chi2emp>chi2crit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=3,ncol=3,dimnames=list(c("bassa","media","alta"),c("Brembana","Seriana","Torta")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=3,ncol=3,dimnames=list(c("bassa","media","alta"),c("Brembana","Seriana","Torta")))
+cat("Residui di Pearson:\n")
+matrix((frequenzeoss-frequenzecalc)/sqrt(frequenzecalc),nrow=3,ncol=3,dimnames=list(c("bassa","media","alta"),c("Brembana","Seriana","Torta")))
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-4-risposta1,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=4),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 4 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+xa <- seq(chi2emp,lim.dx,by=0.01)
+ya <- c(dchisq(xa,df=4),0,0)
+xa <- c(xa,lim.dx,chi2emp)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(11.5,0.15,paste("c = ",round(chi2emp,6),"\npvalue = ",signif(1-pchisq(chi2emp,df=4),7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.5} \addcontentsline{toc}{section}{Esercizio 4.4.5}
+
+\begin{itemize}
+\item[1)]
+<<4-4-5-risposta1>>=
+cat("H0: mu1 = mu2 \nH1: mu1 < mu2\n")
+@
+
+\item[2)]
+<<4-4-5-risposta2>>=
+data(esercizio.1.4.10)
+Raccolto <- esercizio.1.4.10[,"Raccolto"]
+Varieta <- esercizio.1.4.10[,"Varieta"]
+n1 <- length(Raccolto[Varieta=="1"])
+n2 <- length(Raccolto[Varieta=="2"])
+media1 <- mean(Raccolto[Varieta=="1"])
+media2 <- mean(Raccolto[Varieta=="2"])
+var1 <- var2 <- 2
+alpha <- 0.1
+zcrit <- qnorm(alpha)
+zemp <- (media1-media2)/sqrt(var1/n1+var2/n2)
+pvalue <- pnorm(zemp)
+cat("Statistica test: ",zemp,"\n")
+cat("pvalue: ",pvalue,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale sinistro): ",zcrit,"\n")
+if(zemp<zcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-5-risposta3,fig=TRUE>>=
+lim.sx <- -10
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dnorm(x),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(Z)," di Gauss")),type="l")
+xa <- seq(lim.sx,zemp,by=0.01)
+ya <- c(dnorm(xa),0,0)
+xa <- c(xa,zemp,lim.sx)
+polygon(xa,ya,col="black")
+#xa <- seq(-tempirico,lim.dx,by=0.01)
+#ya <- c(dt(xa,df=77),0,0)
+#xa <- c(xa,lim.dx,-tempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("z = ",round(zemp,6),"\npvalue = ",round(pvalue,7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.6} \addcontentsline{toc}{section}{Esercizio 4.4.6}
+
+\begin{itemize}
+\item[1)]
+<<4-4-6-risposta1>>=
+varianza <- 9
+enne <- 7
+sommaY <- 1093.87
+mu0 <- 155
+media <- sommaY/enne
+alpha <- 0.09
+zcrit <- qnorm(1-alpha/2)
+l1 <- media - zcrit*sqrt(varianza/enne)
+l2 <- media + zcrit*sqrt(varianza/enne)
+cat("1-alpha: ",1-alpha,"\n")
+cat("Intervallo di confidenza: (",l1,",",l2,")\n")
+@
+
+\item[2)]
+<<4-4-6-risposta2>>=
+cat("H0: mu = 155 \nH1: mu > 155\n")
+zemp <- (media-mu0)/sqrt(varianza/enne)
+cat("Statistica test: ",zemp,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",zcrit,"\n")
+if(zemp>zcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+
+\item[3)]
+<<4-4-6-risposta3>>=
+pvalue <- 1-pnorm(zemp)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-6-risposta3,fig=TRUE>>=
+lim.sx <- -10
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dnorm(x),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(Z)," di Gauss")),type="l")
+#xa <- seq(lim.sx,zemp,by=0.01)
+#ya <- c(dnorm(xa),0,0)
+#xa <- c(xa,zemp,lim.sx)
+#polygon(xa,ya,col="black")
+xa <- seq(zemp,lim.dx,by=0.01)
+ya <- c(dnorm(xa),0,0)
+xa <- c(xa,lim.dx,zemp)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("z = ",round(zemp,6),"\npvalue = ",round(pvalue,7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.7} \addcontentsline{toc}{section}{Esercizio 4.4.7}
+
+\begin{itemize}
+\item[1)]
+<<4-4-7-risposta1>>=
+cat("H0: mu1 = mu2 \nH1: mu1 != mu2\n")
+Standard <- c(enne=22,media=107,stimaVar=12)
+Saline <- c(enne=16,media=111,stimaVar=18)
+n1 <- Standard["enne"]
+media1 <- Standard["media"]
+var1 <- Standard["stimaVar"]
+n2 <- Saline["enne"]
+media2 <- Saline["media"]
+var2 <- Saline["stimaVar"]
+alpha <- 0.1
+gdl <- n1+n2-2
+Spooled <- sqrt(((n1-1)*var1+(n2-1)*var2)/gdl)
+tempirico <- (media1-media2)/(Spooled*sqrt(1/n1+1/n2))
+tcrit <- qt(1-alpha/2,df=gdl)
+cat("Statistica test: ",tempirico,"\n")
+cat("Valore critico con ampiezza",alpha,"(bilaterale): -/+",tcrit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+if(abs(tempirico)>tcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+
+\item[2)]
+<<4-4-7-risposta2>>=
+pvalue <- 2*pt(-abs(tempirico),df=gdl)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-7-risposta2,fig=TRUE>>=
+lim.sx <- -10
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dt(x,df=36),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(t)," di Student con 36 gradi di libertà")),type="l")
+xa <- seq(lim.sx,tempirico,by=0.01)
+ya <- c(dt(xa,df=36),0,0)
+xa <- c(xa,tempirico,lim.sx)
+polygon(xa,ya,col="black")
+xa <- seq(-tempirico,lim.dx,by=0.01)
+ya <- c(dt(xa,df=77),0,0)
+xa <- c(xa,lim.dx,-tempirico)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("t = ",round(tempirico,6),"\npvalue = ",round(pvalue,9)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.8} \addcontentsline{toc}{section}{Esercizio 4.4.8}
+
+\begin{itemize}
+\item[1)]
+<<4-4-8-risposta1>>=
+frequenzeoss <- c(27,58,25)
+enne <- sum(frequenzeoss)
+prop <- c(0.2,0.5,0.3)
+frequenzecalc <- prop*enne
+k <- length(frequenzeoss)
+valempirico <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.05
+valecrit <- qchisq(1-alpha,df=k-1)
+cat("Statistica test: ",valempirico,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",valecrit,"\n")
+cat("gradi di libertà: ",k-1,"\n")
+if(valempirico>valecrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=1,ncol=3,dimnames=list(character(1),c("Bassa qualità","Media qualità","Alta qualità")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=1,ncol=3,dimnames=list(character(1),c("Bassa qualità","Media qualità","Alta qualità")))
+@
+
+\item[2)]
+<<4-4-8-risposta2a>>=
+pvalue <- 1-pchisq(valempirico,df=k-1)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-8-risposta2b,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=2),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 2 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+xa <- seq(valempirico,lim.dx,by=0.01)
+ya <- c(dchisq(xa,df=2),0,0)
+xa <- c(xa,lim.dx,valempirico)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(10,0.4,paste("c = ",round(valempirico,6),"\npvalue = ",round(1-pchisq(valempirico,df=2),7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.9} \addcontentsline{toc}{section}{Esercizio 4.4.9}
+
+\begin{itemize}
+\item[1)]
+<<4-4-9-risposta1>>=
+enne <- 120
+lambda <- 0.91
+frequenzeoss <- c(12,14,94,0)
+prop <- c(dpois(0:2,lambda=lambda),1-ppois(2,lambda=lambda))
+frequenzecalc <- prop*enne
+k <- length(frequenzeoss)
+valempirico <- sum(frequenzeoss**2/frequenzecalc)-enne
+pvalue <- 1-pchisq(valempirico,df=k-1)
+alpha <- 0.05
+valecrit <- qchisq(1-alpha,df=k-1)
+cat("Statistica test: ",valempirico,"\n")
+cat("pvalue: ",pvalue,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",valecrit,"\n")
+cat("gradi di libertà: ",k-1,"\n")
+if(valempirico>valecrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=1,ncol=4,dimnames=list(character(1),c("X = 0","X = 1","X = 2","X = 3")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=1,ncol=4,dimnames=list(character(1),c("X = 0","X = 1","X = 2","X = 3")))
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-9-risposta1,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=3),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 3 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(valempirico,lim.dx,by=0.01)
+#ya <- c(dchisq(xa,df=3),0,0)
+#xa <- c(xa,lim.dx,valempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(10,0.2,paste("c = ",round(valempirico,4),"\npvalue = ",round(1-pchisq(valempirico,df=3),7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.10} \addcontentsline{toc}{section}{Esercizio 4.4.10}
+
+\begin{itemize}
+\item[1)]
+<<4-4-10-risposta1>>=
+cat("H0: mu1 = mu2 \nH1: mu1 != mu2\n")
+macchinarioM1 <- c(sommaX=29037.9,varianzaX=16.9791,enne=264)
+macchinarioM2 <- c(sommaX=33888.5,varianzaX=15.412,enne=295)
+n1 <- macchinarioM1[["enne"]]
+media1 <- macchinarioM1[["sommaX"]]/n1
+var1 <- macchinarioM1[["varianzaX"]]
+n2 <- macchinarioM2[["enne"]]
+media2 <- macchinarioM2[["sommaX"]]/n2
+var2 <- macchinarioM2[["varianzaX"]]
+alpha <- 0.01
+gdl <- n1+n2-2
+Spooled <- sqrt(((n1-1)*var1+(n2-1)*var2)/gdl)
+tempirico <- (media1-media2)/(Spooled*sqrt(1/n1+1/n2))
+tcrit <- qt(1-alpha/2,df=gdl)
+cat("Statistica test: ",tempirico,"\n")
+cat("Valore critico con ampiezza",alpha,"(bilaterale): -/+",tcrit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+cat("Spooled: ",Spooled,"\n")
+if(abs(tempirico)>tcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+
+\item[2)]
+<<4-4-10-risposta2>>=
+pvalue <- 2*pt(-abs(tempirico),df=gdl)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-10-risposta2,fig=TRUE>>=
+lim.sx <- -20
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dt(x,df=557),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(t)," di Student con 557 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,tempirico,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(-tempirico,lim.dx,by=0.01)
+#ya <- c(dt(xa,df=77),0,0)
+#xa <- c(xa,lim.dx,-tempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("t = ",round(tempirico,5),"\npvalue = ",signif(pvalue,7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.11} \addcontentsline{toc}{section}{Esercizio 4.4.11}
+
+\begin{itemize}
+\item[1)]
+<<4-4-11-risposta1>>=
+cat("H0: p = 0.2 \nH1: p != 0.2\n")
+enne <- 25
+difettose <- 6
+phat <- difettose/enne
+alpha <- 0.1
+p0 <- 0.2
+zemp <- (phat-p0)/sqrt(p0*(1-p0)/enne)
+zcrit <- qnorm(1-alpha/2)
+pvalue <- 2*pnorm(-abs(zemp))
+cat("Statistica test: ",zemp,"\n")
+cat("pvalue: ",pvalue,"\n")
+cat("Valore critico con ampiezza",alpha,"(bilaterale): -/+",zcrit,"\n")
+if(abs(zemp)>zcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-11-risposta1,fig=TRUE>>=
+lim.sx <- -10
+lim.dx <- 10
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dnorm(x),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(Z)," di Gauss")),type="l")
+xa <- seq(lim.sx,-zemp,by=0.01)
+ya <- c(dnorm(xa),0,0)
+xa <- c(xa,-zemp,lim.sx)
+polygon(xa,ya,col="black")
+xa <- seq(zemp,lim.dx,by=0.01)
+ya <- c(dnorm(xa),0,0)
+xa <- c(xa,lim.dx,zemp)
+polygon(xa,ya,col="black")
+abline(h=0)
+legend(1.5,0.3,paste("z = ",round(zemp,6),"\npvalue = ",round(pvalue,7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.12} \addcontentsline{toc}{section}{Esercizio 4.4.12}
+
+\begin{itemize}
+\item[1)]
+<<4-4-12-risposta1>>=
+frequenzeoss <- c(11,29,9,21,80,25)
+enne <- sum(frequenzeoss)
+valori <- c(146,161,177,193,208,224)
+valoricentrali <- c((130+146)/2,(146+161)/2,(161+177)/2,(177+193)/2,(193+208)/2,(208+224)/2)
+media <- sum(valoricentrali*frequenzeoss)/sum(frequenzeoss)
+varianza <- sum(frequenzeoss*(valoricentrali-media)**2)/(sum(frequenzeoss)-1)
+prop <- numeric(6)
+prop[1] <- pnorm(161,mean=media,sd=sqrt(varianza))-pnorm(146,mean=media,sd=sqrt(varianza))
+prop[2] <- pnorm(177,mean=media,sd=sqrt(varianza))-pnorm(161,mean=media,sd=sqrt(varianza))
+prop[3] <- pnorm(193,mean=media,sd=sqrt(varianza))-pnorm(177,mean=media,sd=sqrt(varianza))
+prop[4] <- pnorm(208,mean=media,sd=sqrt(varianza))-pnorm(193,mean=media,sd=sqrt(varianza))
+prop[5] <- pnorm(224,mean=media,sd=sqrt(varianza))-pnorm(208,mean=media,sd=sqrt(varianza))
+prop[6] <- 1-sum(prop[1:5])
+frequenzecalc <- prop*enne
+k <- length(frequenzeoss)
+valempirico <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.01
+gdl <- k-2
+valecrit <- qchisq(1-alpha,df=k-2)
+cat("Statistica test: ",valempirico,"\n")
+pvalue <- 1-pchisq(valempirico,df=gdl)
+cat("pvalue: ",pvalue,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",valecrit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+if(valempirico>valecrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=1,ncol=6,dimnames=list(character(1),c("(136,146]","(146,161]","(161,177]","(177,193]","(193,208]","(208,224]")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=1,ncol=6,dimnames=list(character(1),c("(136,146]","(146,161]","(161,177]","(177,193]","(193,208]","(208,224]")))
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-12-risposta1,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=4),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 4 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(valempirico,lim.dx,by=0.01)
+#ya <- c(dchisq(xa,df=3),0,0)
+#xa <- c(xa,lim.dx,valempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(10,0.15,paste("c = ",round(valempirico,4),"\npvalue = ",round(1-pchisq(valempirico,df=4),7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.13} \addcontentsline{toc}{section}{Esercizio 4.4.13}
+
+\begin{itemize}
+<<>>=
+data(esercizio.4.4.13)
+dataDF <- esercizio.4.4.13
+@
+
+\item[1)]
+Abbinando ad ogni trattamento un livello del fattore $B$ si ottiene la tabella ANOVA:
+
+<<4-4-13-risposta1>>=
+anova(lm(Y ~ code, data = dataDF))
+@
+
+\item[2)]
+Una soluzione si può ottenere ricorrendo ad opportuni contrasti per le medie di trattamento. Per
+saggiare l'effetto dell'esposizione al sole il vettore dei coefficienti vale:
+
+<<4-4-13-risposta2a>>=
+matContra <- cbind((c(1,2,1,2,1,2)-1.5)/0.5)
+matrix(matContra,nrow=6,dimnames=list(character(6),character(1)))
+@
+
+Il vettore delle medie vale:
+
+<<4-4-13-riposta2b>>=
+vetPara <- as.vector(by(dataDF$Y,dataDF$code,mean))
+vetPara
+lamUno <- t(matContra)%*% vetPara
+l2 <- lamUno^2 /(t(matContra)%*%matContra/3)
+Fempi <- l2 / 13.639
+@
+
+Da cui il valore del contrasto \Sexpr{round(lamUno,5)}. La $SS$ dovuta al contrasto vale \Sexpr{round(l2,5)} che
+diviso per $QM(e)$ porta ad un valore empirico di $F = $ \Sexpr{round(Fempi,5)}. Per saggiare gli effetti
+dovuti all'altitudine si componga la matrice dei contrasti di nome \verb+matContra+:
+
+<<4-4-13-risposta2c>>=
+matContra2 <- cbind(
+c(2,2,-1,-1,-1,-1),
+c(0,0,1,1,-1,-1)
+)
+matrix(matContra2,nrow=6,dimnames=list(character(6),character(2)))
+@
+
+che sono ortogonali, infatti:
+
+<<4-4-13-risposta2d>>=
+cat("t(matContra) %*% matContra\n")
+matrix(t(matContra2) %*% matContra2,nrow=2,dimnames=list(character(2),character(2)))
+@
+
+I valori stimati delle due componenti del contrasto sono:
+
+<<4-4-13-riposta2e>>=
+lamDue <- t(matContra2) %*% vetPara
+matrix(lamDue,nrow=2,dimnames=list(character(2),character(1)))
+l3 <- lamDue[1,]^2  /(t(matContra2[,1])%*%matContra2[,1]/3)
+l4 <- lamDue[2,]^2  /(t(matContra2[,2])%*%matContra2[,2]/3)
+lsecondo <- l3+l4
+qmsecondo <- lsecondo/2
+Fempi2 <- qmsecondo / 13.639
+@
+
+Pertanto la devianza associata al contrasto vale \Sexpr{round(lsecondo,5)} e $QM(e)$ del contrasto vale
+\Sexpr{round(qmsecondo,5)} a cui segue un valore empirico di $F$ pari a \Sexpr{round(Fempi2,5)}.\\
+Un contrasto che saggia l'interazione si ottiene con la matrice ottenuta dal prodotto
+dei due precedenti contrasti, vettore a vettore:
+
+<<4-4-13-risposta2f>>=
+matC3 <- cbind(matContra*matContra2[,1],matContra*matContra2[,2])
+matrix(matC3,nrow=6,dimnames=list(character(6),character(2)))
+@
+
+che porta alla stima:
+
+<<4-4-13-risposta2g>>=
+lamTre <- t(matC3)%*% vetPara
+matrix(lamTre,nrow=2,dimnames=list(character(2),character(1)))
+SSInterazione <- t(lamTre) %*% solve( t(matC3) %*% matC3 /3) %*% lamTre
+qmInterazione <- SSInterazione/2
+Fempi3 <- qmInterazione / 13.639
+@
+
+e alla devianza del contrasto \Sexpr{round(SSInterazione,5)} e alla $QM$ del contrasto \Sexpr{round(qmInterazione,5)}. Segue
+che il valore empirico di $F$ vale \Sexpr{round(Fempi3,5)}.\\Riepilogando i contrasti sottoforma di
+tabella ANOVA si ha:
+
+<<4-4-13-risposta2h>>=
+anova(lm(Y ~ A * S, data = dataDF))
+@
+\end{itemize}
+
+\section*{Esercizio 4.4.14} \addcontentsline{toc}{section}{Esercizio 4.4.14}
+
+\begin{itemize}
+<<>>=
+data(esercizio.4.4.14)
+DFlavoro <- esercizio.4.4.14
+@
+
+\item[1)]
+<<4-4-14-risposta1a>>=
+freqassmaschi <- table(rep(DFlavoro$X[esercizio.4.4.14$Y=="0"],times=DFlavoro$frequenze[DFlavoro$Y=="0"]))
+freqrelmaschi <- freqassmaschi/sum(freqassmaschi)
+matrix(c(as.numeric(names(freqrelmaschi)),as.vector(freqrelmaschi)),nrow=5,dimnames=list(character(5),c("Y=0","Freq")))
+freqassfemmine <- table(rep(DFlavoro$X[DFlavoro$Y=="1"],times=DFlavoro$frequenze[DFlavoro$Y=="1"]))
+freqrelfemmine <- freqassfemmine/sum(freqassfemmine)
+matrix(c(as.numeric(names(freqrelfemmine)),as.vector(freqrelfemmine)),nrow=5,dimnames=list(character(5),c("Y=1","Freq")))
+@
+
+\begin{figure}[h]
+\centering
+<<4-4-14-risposta1b,fig=TRUE>>=
+barplot(freqrelmaschi,main="Diagramma di frequenze relative (MASCHI)",ylim=c(0,0.4))
+@
+ \caption{\href{file:Figure/Capitolo4/Esercizio-4-4-14-risposta1b.pdf}{Barplot maschi}}
+ \label{fig:4-4-14-risposta1b}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+<<4-4-14-risposta1c,fig=TRUE>>=
+barplot(freqrelfemmine,main="Diagramma di frequenze relative (FEMMINE)",ylim=c(0,0.4))
+@
+ \caption{\href{file:Figure/Capitolo4/Esercizio-4-4-14-risposta1c.pdf}{Barplot femmine}}
+ \label{fig:4-4-14-risposta1c}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:4-4-14-risposta1b}\end{NoHyper} rappresenta il diagramma di frequenze relative
+per i soli maschi mentre la Figure~\begin{NoHyper}\ref{fig:4-4-14-risposta1c}\end{NoHyper} quello per le sole femmine.
+
+\item[2)] La distribuzione della preferenza dei soli maschi è bimodale (100 e 5000 sono i valori che presentano frequenza assoluta maggiore)
+mentre quella delle sole femmine è unimodale (100 è il valore che presenta frequenza assoluta maggiore).
+
+\item[3)]
+<<4-4-14-risposta3>>=
+frequenzeoss <- matrix(c(freqassmaschi,freqassfemmine),nrow=2,byrow=T,dimnames=list(c("0","1"),c("0","1","10","100","5000")))
+enne <- sum(frequenzeoss)
+marginY <- apply(frequenzeoss,1,sum)
+marginX <- apply(frequenzeoss,2,sum)
+frequenzecalc <- matrix(outer(marginY,marginX,"*"),nrow=2)/enne
+chi2emp <- sum(frequenzeoss**2/frequenzecalc)-enne
+alpha <- 0.01
+gdl <- (2-1)*(5-1)
+chi2crit <- qchisq(1-alpha,df=gdl)
+cat("Statistica test: ",chi2emp,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",tcrit,"\n")
+cat("gradi di libertà: ",gdl,"\n")
+if(chi2emp>chi2crit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+cat("Frequenze osservate:\n")
+matrix(frequenzeoss,nrow=2,ncol=5,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 10","X = 100","X = 5000")))
+cat("Frequenze attese:\n")
+matrix(frequenzecalc,nrow=2,ncol=5,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 10","X = 100","X = 5000")))
+cat("Residui di Pearson:\n")
+matrix((frequenzeoss-frequenzecalc)/sqrt(frequenzecalc),nrow=2,ncol=5,dimnames=list(c("Y = 0","Y = 1"),c("X = 0","X = 1","X = 10","X = 100","X = 5000")))
+@
+
+\item[4)]
+<<4-4-14-risposta4>>=
+pvalue <- 1-pchisq(chi2emp,df=gdl)
+cat("pvalue: ",pvalue,"\n")
+@
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+<<4-4-14-risposta4,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 20
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,dchisq(x,df=4),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",chi^2," con 4 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,chi2emp,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(valempirico,lim.dx,by=0.01)
+#ya <- c(dchisq(xa,df=3),0,0)
+#xa <- c(xa,lim.dx,valempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(10,0.15,paste("c = ",round(chi2emp,5),"\npvalue = ",signif(pvalue,7)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\section*{Esercizio 4.4.15} \addcontentsline{toc}{section}{Esercizio 4.4.15}
+
+\begin{itemize}
+<<>>=
+data(iris)
+@
+
+\item[1)]
+\begin{figure}[h]
+\centering
+<<4-4-15-risposta1,fig=TRUE>>=
+risposta <- iris$Petal.Length
+fattore <- iris$Species
+boxplot(risposta~fattore,main="Boxplot di Petal.Length per Species")
+@
+ \caption{\href{file:Figure/Capitolo4/Esercizio-4-4-15-risposta1.pdf}{Barplot per specie}}
+ \label{fig:4-4-15-risposta1}
+\end{figure}
+
+La Figura~\begin{NoHyper}\ref{fig:4-4-15-risposta1}\end{NoHyper} rappresenta il Boxplot della risposta
+per ogni specie.
+
+\item[2)]
+<<4-4-15-risposta2>>=
+varSetosa <- var(risposta[fattore=="setosa"])
+cat("stima puntuale varianza per specie Setosa: ",varSetosa,"\n")
+varVersicolor <- var(risposta[fattore=="versicolor"])
+cat("stima puntuale varianza per specie Versicolor: ",varVersicolor,"\n")
+varVirginica <- var(risposta[fattore=="virginica"])
+cat("stima puntuale varianza per specie Virginica: ",varVirginica,"\n")
+@
+
+\item[3)]
+<<4-4-15-risposta3>>=
+sintesiSetosa <- fiveNumbersSummary(risposta[fattore=="setosa"])
+cat("Sintesi descrittiva per specie Setosa:")
+sintesiSetosa
+sintesiVersicolor <- fiveNumbersSummary(risposta[fattore=="versicolor"])
+cat("Sintesi descrittiva per specie Versicolor:")
+sintesiVersicolor
+sintesiVirginica <- fiveNumbersSummary(risposta[fattore=="virginica"])
+cat("Sintesi descrittiva per specie Virginica:")
+sintesiVirginica
+@
+
+\item[4)]
+<<4-4-15-risposta4>>=
+nSetosa <- length(risposta[fattore=="setosa"])
+nVersicolor <- length(risposta[fattore=="versicolor"])
+nVirginica <- length(risposta[fattore=="virginica"])
+alpha <- 0.05
+l1chis2Setosa <- (nSetosa-1)*varSetosa/qchisq(1-alpha/2,df=nSetosa-1)
+l2chis2Setosa <- (nSetosa-1)*varSetosa/qchisq(alpha/2,df=nSetosa-1)
+cat("1-alpha: ",1-alpha,"\n")
+cat("Intervallo di confidenza per specie Setosa: (",l1chis2Setosa,",",l2chis2Setosa,")\n")
+l1chis2Versicolor <- (nVersicolor-1)*varVersicolor/qchisq(1-alpha/2,df=nVersicolor-1)
+l2chis2Versicolor <- (nVersicolor-1)*varVersicolor/qchisq(alpha/2,df=nVersicolor-1)
+cat("Intervallo di confidenza per specie Versicolor: (",l1chis2Versicolor,",",l2chis2Versicolor,")\n")
+l1chis2Virginica <- (nVirginica-1)*varVirginica/qchisq(1-alpha/2,df=nVirginica-1)
+l2chis2Virginica <- (nVirginica-1)*varVirginica/qchisq(alpha/2,df=nVirginica-1)
+cat("Intervallo di confidenza per specie Virginica: (",l1chis2Virginica,",",l2chis2Virginica,")\n")
+@
+
+\item[5)]
+<<4-4-15-risposta5>>=
+cat("H0: mu1 = mu2 = mu3 \nH1: almeno una mu diversa dalle altre")
+media <- mean(risposta)
+mediaSetosa <- mean(risposta[fattore=="setosa"])
+mediaVersicolor <- mean(risposta[fattore=="versicolor"])
+mediaVirginica <- mean(risposta[fattore=="virginica"])
+k <- 3
+n <- length(risposta)
+DEVTRA <- sum(c(nSetosa,nVersicolor,nVirginica)*(c(mediaSetosa,mediaVersicolor,mediaVirginica)-media)**2)
+DEVTOT <- sum((risposta-media)**2)
+GDLTRA <- k-1
+MQTRA <- DEVTRA/GDLTRA
+DEVERR <- DEVTOT-DEVTRA
+GDLERR <- n-k
+MQERR <- DEVERR/GDLERR
+Fval <- MQTRA/MQERR
+pvalue <- 1-pf(Fval,df1=GDLTRA,df2=GDLERR)
+alpha <- 0.05
+Fcrit <- qf(1-alpha,df1=GDLTRA,df2=GDLERR)
+cat("Statistica test: ",Fval,"\n")
+cat("Valore critico con ampiezza",alpha,"(monolaterale destro): ",Fcrit,"\n")
+cat("gradi di libertà: (",GDLTRA,",",GDLERR,")\n")
+if(Fval>Fcrit) cat("-> Rifiutare H0 con ampiezza",alpha,"\n") else cat("-> Non rifiutare H0 con ampiezza",alpha,"\n")
+@
+
+\begin{figure}[h]
+\centering
+<<4-4-15-risposta5,fig=TRUE>>=
+lim.sx <- -0.5
+lim.dx <- 6
+x <- seq(lim.sx,lim.dx,by=0.01)
+plot(x,df(x,df1=2,df2=147),xlab="x",ylab="Densità",main=
+expression(paste("Distribuzione ",italic(F)," di Fisher con 2 e 147 gradi di libertà")),type="l")
+#xa <- seq(lim.sx,tempirico,by=0.01)
+#ya <- c(dt(xa,df=36),0,0)
+#xa <- c(xa,tempirico,lim.sx)
+#polygon(xa,ya,col="black")
+#xa <- seq(-tempirico,lim.dx,by=0.01)
+#ya <- c(dt(xa,df=77),0,0)
+#xa <- c(xa,lim.dx,-tempirico)
+#polygon(xa,ya,col="black")
+abline(h=0)
+legend(4,0.8,paste("F = ",round(Fval,3),"\npvalue = ",round(pvalue,9)))
+@
+ %\caption{\href{file:Figure/Capitolo4/Esercizio-4-4-2-risposta3grafico.pdf}{Test di ipotesi fabio}}
+ %\label{fig:4-4-2-risposta3grafico}
+\end{figure}
+
+\item[6)]
+<<4-4-15-risposta6>>=
+cat("media campionaria per specie Setosa: ",mediaSetosa,"\n")
+cat("media campionaria per specie Versicolor: ",mediaVersicolor,"\n")
+cat("media campionaria per specie Virginica: ",mediaVirginica,"\n")
+@
+
+Le medie campionarie sono molto differenti tra loro (quella di Virginica è circa 4 volte quella di Setosa) a parità
+di dimensione campionaria ($50$). Questo fa propendere per il rifiuto dell'ipotesi nulla.
+L'ipotesi di uguaglianza tra le varianze condizionate non sembra comunque trovare un buon riscontro nei dati.
+\end{itemize}
+
+\end{document}
+

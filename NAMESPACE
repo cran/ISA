@@ -1,0 +1,4 @@
+export(boxPstd,difSempliceMed,coefVariaz,FLinearMod,fiveNumbersSummary,media,moda,varpopol,quantiB,.Last.lib)
+import(stats,utils,tools)
+.onUnload(.path.packages(pkgname))
+

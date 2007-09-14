@@ -1,0 +1,176 @@
+Changes to Version 1.0-32
+
+   o Modifica file DESCRIPTION
+
+   o Modifica vignette SoluzioniCapitolo2   
+
+Changes to Version 1.0-31
+
+   o Modifica file zzz.R
+
+Changes to Version 1.0-30
+
+   o Modifica vignette SoluzioniCapitolo4
+
+Changes to Version 1.0-29
+
+   o Modifica vignette SoluzioniCapitolo1
+
+Changes to Version 1.0-28
+
+   o Modifica file di DESCRIPTION
+
+Changes to Version 1.0-27
+
+   o Modifica vignette SoluzioniCapitolo4
+
+Changes to Version 1.0-26
+
+   o Modifica file di DESCRIPTION
+
+Changes to Version 1.0-25
+
+   o Modifica alle figure di ciascuna vignette
+
+Changes to Version 1.0-24
+
+   o Modifica della documentazione di vignette capitolo 1
+
+Changes to Version 1.0-23
+
+   o Modifica della documentazione di vignette capitolo 1
+
+Changes to Version 1.0-22
+
+   o Modifica della documentazione di vignettes
+
+Changes to Version 1.0-21
+
+   o Modifica della documentazione di zzz.R
+
+Changes to Version 1.0-20
+
+   o Modifica della documentazione vignette capitolo 1
+
+   o Modifica della documentazione vignette capitolo 2
+
+Changes to Version 1.0-19
+
+   o Documentazione vignette capitolo 1
+
+Changes to Version 1.0-18
+
+   o Documentazione data frame esercizio.4.4.13 e esercizio.4.4.14
+
+Changes to Version 1.0-17
+
+   o Seconda revisione vignette SoluzioniCapitolo5
+
+Changes to Version 1.0-16
+
+   o Revisione vignette SoluzioniCapitolo5
+ 
+   o Aggiornamento funzione FLinearMod
+
+Changes to Version 1.0-15
+
+   o Completamento vignette SoluzioniCapitolo5
+
+Changes to Version 1.0-14
+
+   o Inizio vignette SoluzioniCapitolo5
+
+Changes to Version 1.0-13
+
+   o vignette SoluzioniCapitolo4
+   
+   o Introdotta la documentazione di boxPstd
+
+Changes to Version 1.0-12
+
+   o vignette SoluzioniCapitolo3
+
+Changes to Version 1.0-11
+
+   o Modifica del file di INDEX
+
+   o Introdotta la vignette sul Capitolo 2
+
+Changes to Version 1.0-10
+
+   o Modifica del file di INDEX
+
+   o Introdotta la documentazione al data frame esercizio.5.3.16
+
+   o Introdotta la documentazione al data frame esercizio.5.3.15
+
+   o Introdotta la documentazione al data frame esercizio.5.3.14
+
+   o Introdotta la documentazione al data frame esercizio.5.3.12
+
+   o Introdotta la documentazione al data frame esercizio.5.3.11
+
+   o Introdotta la documentazione al data frame esercizio.5.3.10
+
+   o Introdotta la documentazione al data frame esercizio.5.3.9
+   
+   o Introdotta la documentazione al data frame esercizio.5.3.7
+
+   o Introdotta la documentazione al data frame esercizio.5.3.6
+
+   o Introdotta la documentazione al data frame esercizio.5.3.5
+
+Changes to Version 1.0-9
+
+   o Modifica del file di INDEX
+
+   o Introdotta la documentazione al data frame esercizio.5.3.1
+   
+   o Introdotta la documentazione al data frame esercizio.5.3.3
+
+Changes to Version 1.0-8
+
+   o Modifica del file di INDEX
+   
+   o Introdotta la documentazione al data frame esercizio.5.3.9
+
+Changes to Version 1.0-7
+
+   o Modifica del file di INDEX
+   
+   o Introdotta la documentazione al data frame esercizio.1.4.10
+
+   o Introdotta la documentazione al data frame esercizio.1.4.14
+
+Changes to Version 1.0-6
+
+   o Modifica del file di DESCRIPTION
+
+Changes to Version 1.0-5
+
+   o Modifica del file di INDEX e NAMESPACE
+   
+   o Introdotta la documentazione alla funzione FLinearMod  
+
+   o Introdotta la documentazione alla funzione fiveNumbersSummary
+
+   o Introdotta la documentazione alla funzione moda
+
+Changes to Version 1.0-4
+
+   o Modifica del file di INDEX e NAMESPACE
+   
+   o Introdotta la documentazione alla funzione media
+
+   o Introdotta la documentazione alla funzione quantiB
+
+Changes to Version 1.0-3
+
+   o Introdotta la documentazione alla funzione difSempliceMedia
+   
+   o Introdotta la documentazione alla funzione coefVariaz
+
+Version 0.0: versione iniziale
+
+
+
